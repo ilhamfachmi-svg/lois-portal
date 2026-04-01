@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOIS Brand Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --nav:#0f1f3d;
+  --nav2:#162a52;
+  --accent:#2563eb;
+  --accent2:#f59e0b;
+  --accent3:#10b981;
+  --danger:#ef4444;
+  --warn:#f59e0b;
+  --bg:#f4f6fa;
+  --surface:#ffffff;
+  --border:#e2e8f0;
+  --text:#0f172a;
+  --text2:#64748b;
+  --text3:#94a3b8;
+  --radius:12px;
+  --radius-sm:8px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.08);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;font-size:14px}
+.layout{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--nav);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100;overflow-y:auto}
+.sidebar-logo{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.07)}
+.logo-mark{display:flex;align-items:center;gap:10px}
+.logo-icon{width:32px;height:32px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:#fff;font-family:'DM Mono',monospace}
+.logo-text{color:#fff;font-size:14px;font-weight:600;letter-spacing:-0.2px}
+.logo-sub{color:rgba(255,255,255,0.4);font-size:11px;margin-top:2px}
+.nav-group{padding:12px 0}
+.nav-label{font-size:10px;color:rgba(255,255,255,0.3);padding:6px 18px 4px;text-transform:uppercase;letter-spacing:0.8px;font-weight:500}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 18px;font-size:13px;color:rgba(255,255,255,0.6);cursor:pointer;border:none;background:transparent;width:100%;text-align:left;transition:all 0.15s;position:relative;font-family:'DM Sans',sans-serif}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.06)}
+.nav-item.active{color:#fff;background:rgba(37,99,235,0.3)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--accent);border-radius:0 2px 2px 0}
+.nav-icon{width:18px;height:18px;opacity:0.7;flex-shrink:0}
+.nav-item.active .nav-icon{opacity:1}
+.nav-badge{background:var(--danger);color:#fff;border-radius:10px;padding:1px 6px;font-size:10px;margin-left:auto;font-weight:500}
+.sidebar-footer{margin-top:auto;padding:16px 18px;border-top:1px solid rgba(255,255,255,0.07)}
+.user-info{display:flex;align-items:center;gap:10px}
+.user-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0}
+.user-name{font-size:12px;color:rgba(255,255,255,0.8);font-weight:500}
+.user-role{font-size:11px;color:rgba(255,255,255,0.4)}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.topbar-left{display:flex;align-items:center;gap:8px}
+.topbar-title{font-size:15px;font-weight:600;color:var(--text)}
+.topbar-right{display:flex;align-items:center;gap:12px}
+.topbar-date{font-size:12px;color:var(--text2)}
+.alert-bell{position:relative;cursor:pointer;width:32px;height:32px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--bg);border:1px solid var(--border)}
+.alert-bell-dot{position:absolute;top:6px;right:6px;width:7px;height:7px;background:var(--danger);border-radius:50%;border:1px solid var(--surface)}
+.content{padding:24px;flex:1}
+.page{display:none}
+.page.active{display:block}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}
+.metric{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+.metric-label{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+.metric-val{font-size:26px;font-weight:600;color:var(--text);line-height:1;font-family:'DM Mono',monospace}
+.metric-sub{font-size:12px;margin-top:6px;display:flex;align-items:center;gap:4px}
+.metric-sub.up{color:var(--accent3)}
+.metric-sub.down{color:var(--danger)}
+.metric-sub.neu{color:var(--text2)}
+.metric-accent{width:3px;border-radius:2px;align-self:stretch;margin-right:2px}
+.metric-accent.blue{background:var(--accent)}
+.metric-accent.green{background:var(--accent3)}
+.metric-accent.red{background:var(--danger)}
+.metric-accent.amber{background:var(--accent2)}
+
+/* PANELS */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);margin-bottom:20px}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.panel-title{font-size:14px;font-weight:600;color:var(--text)}
+.panel-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.row2{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:20px}
+.row3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:20px}
+
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:9px 12px;color:var(--text2);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid var(--border);background:var(--bg);white-space:nowrap}
+th:first-child{border-radius:var(--radius-sm) 0 0 0}
+th:last-child{border-radius:0 var(--radius-sm) 0 0}
+td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);font-size:13px;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#f8fafc}
+.tbl-wrap{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-ok{background:#dcfce7;color:#166534}
+.b-warn{background:#fef9c3;color:#854d0e}
+.b-danger{background:#fee2e2;color:#991b1b}
+.b-info{background:#dbeafe;color:#1e40af}
+.b-gray{background:#f1f5f9;color:#475569}
+.b-purple{background:#f3e8ff;color:#6b21a8}
+
+/* PROGRESS BAR */
+.bar-wrap{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:var(--accent);transition:width 0.5s ease}
+.bar-fill.green{background:var(--accent3)}
+.bar-fill.amber{background:var(--accent2)}
+.bar-fill.red{background:var(--danger)}
+
+/* CHART */
+.chart-area{display:flex;align-items:flex-end;gap:8px;height:140px;padding:0 4px}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar-col .bar-rect{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height 0.4s ease}
+.bar-col .bar-rect.primary{background:var(--accent)}
+.bar-col .bar-rect.secondary{background:#bfdbfe}
+.bar-col .c-lbl{font-size:10px;color:var(--text2)}
+.bar-col .c-val{font-size:10px;color:var(--text2);font-family:'DM Mono',monospace}
+
+/* ALERT ITEM */
+.alert-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+.alert-item:last-child{border-bottom:none}
+.alert-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.alert-dot.red{background:var(--danger)}
+.alert-dot.amber{background:var(--accent2)}
+.alert-dot.blue{background:var(--accent)}
+.alert-content .msg{font-size:13px;color:var(--text);line-height:1.4}
+.alert-content .time{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* BUTTONS */
+.btn{padding:7px 14px;border-radius:var(--radius-sm);font-size:12px;cursor:pointer;border:1px solid var(--border);background:var(--surface);color:var(--text);font-weight:500;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.btn:hover{background:var(--bg);border-color:var(--text3)}
+.btn-primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn-primary:hover{background:#1d4ed8;border-color:#1d4ed8}
+.btn-sm{padding:5px 10px;font-size:11px}
+.btn-danger{background:#fee2e2;color:#991b1b;border-color:#fecaca}
+
+/* FORM */
+.filter-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
+.filter-row select,.filter-row input{padding:7px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+.filter-row select:focus,.filter-row input:focus{border-color:var(--accent)}
+.form-grid{display:grid;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:5px}
+.form-group label{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.4px}
+.form-group input,.form-group select,.form-group textarea{padding:8px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;background:var(--surface);color:var(--text);font-family:'DM Sans',sans-serif;outline:none;transition:border 0.15s}
+.form-group input:focus,.form-group select:focus{border-color:var(--accent)}
+
+/* TOP LIST */
+.top-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+.top-item:last-child{border-bottom:none}
+.top-rank{width:22px;height:22px;border-radius:6px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--text2);font-family:'DM Mono',monospace;flex-shrink:0}
+.top-rank.gold{background:#fef3c7;color:#92400e}
+.top-rank.silver{background:#f1f5f9;color:#475569}
+.top-rank.bronze{background:#fdf2e9;color:#7c3500}
+.top-info{flex:1;min-width:0}
+.top-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top-meta{font-size:11px;color:var(--text2);margin-top:1px}
+.top-bar{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:4px}
+.top-bar-fill{height:100%;border-radius:2px;background:var(--accent)}
+.top-qty{font-size:13px;font-weight:600;color:var(--text);font-family:'DM Mono',monospace;text-align:right;flex-shrink:0}
+
+/* ORDER STATUS CARDS */
+.order-status{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-bottom:20px}
+.os-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow);text-align:center}
+.os-card .n{font-size:22px;font-weight:700;font-family:'DM Mono',monospace;line-height:1}
+.os-card .l{font-size:11px;color:var(--text2);margin-top:4px;font-weight:500}
+
+/* TARGET ROW */
+.target-row{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.target-label{font-size:13px;color:var(--text);min-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.target-progress{flex:1}
+.target-val{font-size:12px;color:var(--text2);min-width:100px;text-align:right;font-family:'DM Mono',monospace;font-size:11px}
+
+/* INPUT SECTIONS */
+.section-nav{display:flex;gap:4px;background:var(--bg);border-radius:var(--radius-sm);padding:4px;margin-bottom:16px;border:1px solid var(--border)}
+.snav-item{flex:1;padding:7px;text-align:center;font-size:12px;font-weight:500;color:var(--text2);border-radius:6px;cursor:pointer;border:none;background:transparent;font-family:'DM Sans',sans-serif;transition:all 0.15s}
+.snav-item.active{background:var(--surface);color:var(--accent);box-shadow:var(--shadow)}
+.snav-item:hover:not(.active){color:var(--text)}
+
+/* NOTIFICATION */
+.notif{padding:10px 14px;border-radius:var(--radius-sm);font-size:12px;margin-bottom:12px;display:none;align-items:center;gap:8px}
+.notif.show{display:flex}
+.notif.success{background:#dcfce7;color:#166534;border:1px solid #bbf7d0}
+.notif.error{background:#fee2e2;color:#991b1b;border:1px solid #fecaca}
+.notif.warn{background:#fef9c3;color:#854d0e;border:1px solid #fde68a}
+
+/* MONO */
+.mono{font-family:'DM Mono',monospace;font-size:12px}
+
+/* RESPONSIVE helper */
+.empty{text-align:center;padding:2rem;color:var(--text3);font-size:13px}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:16px 0}
+
+/* STAT INLINE */
+.stat-inline{display:flex;gap:20px;flex-wrap:wrap}
+.stat-inline .si{text-align:center}
+.stat-inline .si-val{font-size:18px;font-weight:700;font-family:'DM Mono',monospace;color:var(--text)}
+.stat-inline .si-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+
+/* CARD ACCENT */
+.metric.accent-blue{border-top:3px solid var(--accent)}
+.metric.accent-green{border-top:3px solid var(--accent3)}
+.metric.accent-red{border-top:3px solid var(--danger)}
+.metric.accent-amber{border-top:3px solid var(--accent2)}
+</style>
+</head>
+<body>
+<div class="layout">
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">LB</div>
+      <div>
+        <div class="logo-text">LOIS Brand</div>
+        <div class="logo-sub">Brand Portal v1.0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Utama</div>
+    <button class="nav-item active" onclick="goPage('dashboard',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </button>
+    <button class="nav-item" onclick="goPage('sales',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Penjualan
+    </button>
+    <button class="nav-item" onclick="goPage('stock',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      Monitor Stok
+    </button>
+    <button class="nav-item" onclick="goPage('orders',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Pesanan
+    </button>
+    <button class="nav-item" onclick="goPage('entry',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Input Harian
+    </button>
+  </div>
+
+  <div class="nav-group">
+    <div class="nav-label">Analitik</div>
+    <button class="nav-item" onclick="goPage('target',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+      Target vs Aktual
+    </button>
+    <button class="nav-item" onclick="goPage('topsku',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Produk Terlaris
+    </button>
+    <button class="nav-item" onclick="goPage('alerts',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      Peringatan
+      <span class="nav-badge" id="nav-alert-count">6</span>
+    </button>
+    <button class="nav-item" onclick="goPage('stores',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Kelola Toko
+    </button>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="user-info">
+      <div class="user-avatar">AD</div>
+      <div>
+        <div class="user-name">Admin LOIS</div>
+        <div class="user-role">Brand Manager</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <span class="topbar-title" id="page-title">Dashboard</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-date" id="top-date"></span>
+      <div class="alert-bell" onclick="goPage('alerts',document.querySelector('.nav-item:nth-last-child(2)'))">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <div class="alert-bell-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ DASHBOARD ═══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="metrics">
+        <div class="metric accent-blue">
+          <div class="metric-label">Revenue Hari Ini</div>
+          <div class="metric-val">48,2 Jt</div>
+          <div class="metric-sub up">↑ 12% vs kemarin</div>
+        </div>
+        <div class="metric accent-green">
+          <div class="metric-label">Unit Terjual</div>
+          <div class="metric-val">1.284</div>
+          <div class="metric-sub up">↑ 8% vs kemarin</div>
+        </div>
+        <div class="metric accent-amber">
+          <div class="metric-label">Toko Aktif</div>
+          <div class="metric-val">247<span style="font-size:14px;color:var(--text2)">/300</span></div>
+          <div class="metric-sub neu">53 belum input</div>
+        </div>
+        <div class="metric accent-red">
+          <div class="metric-label">SKU Stok Minus</div>
+          <div class="metric-val" style="color:var(--danger)">23</div>
+          <div class="metric-sub down">↑ 3 dari kemarin</div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <div class="panel">
+          <div class="panel-header">
+            <div>
+              <div class="panel-title">Penjualan 7 Hari Terakhir</div>
+              <div class="panel-sub">dalam jutaan rupiah</div>
+            </div>
+            <span class="badge b-info">April 2026</span>
+          </div>
+          <div class="chart-area" id="chart-weekly"></div>
+          <div style="display:flex;gap:16px;margin-top:12px">
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;border-radius:2px;background:var(--accent)"></div>Revenue (Jt)</div>
+            <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)"><div style="width:10px;height:10px;border-radius:2px;background:#bfdbfe"></div>Target (Jt)</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Peringatan Terbaru</div><span class="badge b-danger">6 aktif</span></div>
+          <div class="alert-item"><div class="alert-dot red"></div><div class="alert-content"><div class="msg">23 SKU stok minus di 8 toko</div><div class="time">2 menit lalu</div></div></div>
+          <div class="alert-item"><div class="alert-dot amber"></div><div class="alert-content"><div class="msg">Metmal Surabaya: target baru 41%</div><div class="time">1 jam lalu</div></div></div>
+          <div class="alert-item"><div class="alert-dot red"></div><div class="alert-content"><div class="msg">LOIS JEANS 639500 ukuran 30 habis di 5 toko</div><div class="time">3 jam lalu</div></div></div>
+          <div class="alert-item"><div class="alert-dot blue"></div><div class="alert-content"><div class="msg">SJ-2024-089 tiba di 12 toko (480 unit)</div><div class="time">5 jam lalu</div></div></div>
+          <div class="alert-item"><div class="alert-dot amber"></div><div class="alert-content"><div class="msg">53 toko belum input data hari ini</div><div class="time">Sejak pagi</div></div></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Ringkasan per Toko (Top 8)</div><button class="btn btn-sm" onclick="exportTable('dash-stores-tbl')">Export CSV</button></div>
+        <div class="tbl-wrap">
+          <table id="dash-stores-tbl">
+            <thead><tr><th>Toko</th><th>Kota</th><th>Unit</th><th>Revenue</th><th>Target</th><th>Pencapaian</th><th>Status</th></tr></thead>
+            <tbody id="dash-stores"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PENJUALAN ═══ -->
+    <div class="page" id="page-sales">
+      <div class="filter-row">
+        <select id="s-period"><option>Hari Ini</option><option>7 Hari</option><option>30 Hari</option><option>Bulan Ini</option></select>
+        <select id="s-store-f"><option>Semua Toko</option></select>
+        <select id="s-cat"><option>Semua Kategori</option><option>Denim & Jeans</option><option>Chinos</option><option>Kemeja</option><option>T-Shirt</option><option>Jaket</option></select>
+        <button class="btn btn-primary btn-sm" onclick="renderSalesPage()">Terapkan Filter</button>
+        <button class="btn btn-sm" onclick="exportTable('sales-tbl')">Export CSV</button>
+      </div>
+      <div class="metrics" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <div class="metric accent-blue"><div class="metric-label">Total Revenue</div><div class="metric-val">Rp 48,2 Jt</div><div class="metric-sub up">↑ 12%</div></div>
+        <div class="metric accent-green"><div class="metric-label">Total Unit</div><div class="metric-val">1.284</div><div class="metric-sub up">↑ 8%</div></div>
+        <div class="metric accent-amber"><div class="metric-label">Avg per Toko</div><div class="metric-val">Rp 195 Rb</div><div class="metric-sub neu">247 toko aktif</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Detail Penjualan per Toko</div></div>
+        <div class="tbl-wrap">
+          <table id="sales-tbl">
+            <thead><tr><th>Toko</th><th>Kota</th><th>Kategori</th><th>Unit Terjual</th><th>Revenue</th><th>Avg/Unit</th><th>Trend</th></tr></thead>
+            <tbody id="sales-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ MONITOR STOK ═══ -->
+    <div class="page" id="page-stock">
+      <div class="filter-row">
+        <input placeholder="Cari produk / artikel..." id="stock-search" oninput="renderStockPage()" style="min-width:200px">
+        <select id="stock-filter" onchange="renderStockPage()"><option>Semua Status</option><option>Stok Minus</option><option>Stok Rendah</option><option>Stok OK</option></select>
+        <select id="stock-store" onchange="renderStockPage()"><option>Semua Toko</option></select>
+        <button class="btn btn-sm" onclick="exportTable('stock-tbl')">Export CSV</button>
+      </div>
+      <div class="metrics">
+        <div class="metric accent-blue"><div class="metric-label">Total SKU</div><div class="metric-val">3.840</div><div class="metric-sub neu">semua toko</div></div>
+        <div class="metric accent-green"><div class="metric-label">SKU OK</div><div class="metric-val" style="color:var(--accent3)">3.594</div><div class="metric-sub up">93.6%</div></div>
+        <div class="metric accent-amber"><div class="metric-label">Stok Rendah</div><div class="metric-val" style="color:var(--accent2)">223</div><div class="metric-sub warn" style="color:var(--accent2)">5.8%</div></div>
+        <div class="metric accent-red"><div class="metric-label">Stok Minus</div><div class="metric-val" style="color:var(--danger)">23</div><div class="metric-sub down">0.6%</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Detail Stok per SKU</div><span class="panel-sub" id="stock-count"></span></div>
+        <div class="tbl-wrap">
+          <table id="stock-tbl">
+            <thead><tr><th>Toko</th><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Stok Awal</th><th>Terjual</th><th>Diterima</th><th>Retur</th><th>Stok Akhir</th><th>Status</th></tr></thead>
+            <tbody id="stock-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PESANAN ═══ -->
+    <div class="page" id="page-orders">
+      <div class="order-status">
+        <div class="os-card"><div class="n" style="color:var(--accent)">482</div><div class="l">Pesanan Masuk</div></div>
+        <div class="os-card"><div class="n" style="color:var(--accent2)">134</div><div class="l">Diproses</div></div>
+        <div class="os-card"><div class="n" style="color:var(--text2)">298</div><div class="l">Dikirim</div></div>
+        <div class="os-card"><div class="n" style="color:var(--accent3)">1.842</div><div class="l">Selesai</div></div>
+        <div class="os-card"><div class="n" style="color:var(--danger)">23</div><div class="l">Dikembalikan</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Daftar Pesanan</div>
+          <div style="display:flex;gap:8px">
+            <select id="order-filter" onchange="renderOrderPage()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text)"><option>Semua</option><option>Diproses</option><option>Dikirim</option><option>Selesai</option><option>Dikembalikan</option></select>
+            <button class="btn btn-sm" onclick="exportTable('order-tbl')">Export CSV</button>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table id="order-tbl">
+            <thead><tr><th>No. Order</th><th>Toko</th><th>Produk</th><th>Ukuran</th><th>Qty</th><th>Total</th><th>Tanggal</th><th>Status</th></tr></thead>
+            <tbody id="order-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ INPUT HARIAN ═══ -->
+    <div class="page" id="page-entry">
+      <div class="panel">
+        <div class="panel-title" style="margin-bottom:12px">Pilih Toko & Tanggal</div>
+        <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+          <div class="form-group"><label>Toko</label><select id="e-store"><option value="">-- Pilih Toko --</option></select></div>
+          <div class="form-group"><label>Tanggal</label><input type="date" id="e-date"></div>
+          <div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="loadEntry()">Muat Form Input</button></div>
+        </div>
+      </div>
+
+      <div id="entry-sections" style="display:none">
+        <div class="section-nav">
+          <button class="snav-item active" onclick="switchSec('soh',this)">📦 Stok Awal</button>
+          <button class="snav-item" onclick="switchSec('penjualan',this)">💰 Penjualan</button>
+          <button class="snav-item" onclick="switchSec('penerimaan',this)">📥 Penerimaan</button>
+          <button class="snav-item" onclick="switchSec('retur',this)">↩️ Retur</button>
+          <button class="snav-item" onclick="switchSec('ringkasan',this)">📊 Ringkasan</button>
+        </div>
+
+        <!-- Stok Awal -->
+        <div id="esec-soh" class="panel">
+          <div class="panel-title" style="margin-bottom:12px">Input Stok Awal</div>
+          <div id="notif-soh" class="notif"></div>
+          <div class="form-grid" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:12px">
+            <div class="form-group"><label>Nama Produk</label><input id="sa-desc" placeholder="LOIS DENIM PANTS..."></div>
+            <div class="form-group"><label>Artikel</label><input id="sa-art" placeholder="CFL077D1"></div>
+            <div class="form-group"><label>Ukuran</label>
+              <select id="sa-size"><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option><option>32</option><option>33</option><option>34</option><option>36</option><option>38</option><option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option><option>XXL</option><option>XXXL</option><option>BEBAS</option></select></div>
+            <div class="form-group"><label>SKU</label><input id="sa-sku" placeholder="14799123"></div>
+            <div class="form-group"><label>Jml Stok Awal</label><input id="sa-qty" type="number" min="0" placeholder="0"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addSoh()">+ Tambah Baris</button>
+          <div class="divider"></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>SKU</th><th>Stok Awal</th><th></th></tr></thead><tbody id="tbl-soh"></tbody></table></div>
+        </div>
+
+        <!-- Penjualan -->
+        <div id="esec-penjualan" class="panel" style="display:none">
+          <div class="panel-title" style="margin-bottom:12px">Input Penjualan Harian</div>
+          <div id="notif-penjualan" class="notif"></div>
+          <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">
+            <div class="form-group"><label>Artikel</label><select id="p-art" onchange="updateSizeOpts('p-art','p-size')"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Ukuran</label><select id="p-size"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Jml Terjual</label><input id="p-qty" type="number" min="1" placeholder="0"></div>
+            <div class="form-group"><label>Harga Satuan (Rp)</label><input id="p-price" type="number" min="0" placeholder="0"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addSales()">+ Tambah Penjualan</button>
+          <div class="divider"></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Qty</th><th>Harga</th><th>Total</th><th></th></tr></thead><tbody id="tbl-penjualan"></tbody></table></div>
+        </div>
+
+        <!-- Penerimaan -->
+        <div id="esec-penerimaan" class="panel" style="display:none">
+          <div class="panel-title" style="margin-bottom:12px">Input Penerimaan Stok</div>
+          <div id="notif-penerimaan" class="notif"></div>
+          <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">
+            <div class="form-group"><label>Artikel</label><select id="r-art" onchange="updateSizeOpts('r-art','r-size')"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Ukuran</label><select id="r-size"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Jml Diterima</label><input id="r-qty" type="number" min="1" placeholder="0"></div>
+            <div class="form-group"><label>No. Surat Jalan</label><input id="r-do" placeholder="SJ-001"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addRecv()">+ Tambah Penerimaan</button>
+          <div class="divider"></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Qty</th><th>No. SJ</th><th></th></tr></thead><tbody id="tbl-penerimaan"></tbody></table></div>
+        </div>
+
+        <!-- Retur -->
+        <div id="esec-retur" class="panel" style="display:none">
+          <div class="panel-title" style="margin-bottom:12px">Input Retur Barang</div>
+          <div id="notif-retur" class="notif"></div>
+          <div class="form-grid" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:12px">
+            <div class="form-group"><label>Artikel</label><select id="rt-art" onchange="updateSizeOpts('rt-art','rt-size')"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Ukuran</label><select id="rt-size"><option value="">-- Pilih --</option></select></div>
+            <div class="form-group"><label>Jml Retur</label><input id="rt-qty" type="number" min="1" placeholder="0"></div>
+            <div class="form-group"><label>Alasan</label><select id="rt-reason"><option>Cacat/Rusak</option><option>Barang Salah</option><option>Ukuran Salah</option><option>Berubah Pikiran</option><option>Rusak Pengiriman</option><option>Lainnya</option></select></div>
+            <div class="form-group"><label>Kondisi</label><select id="rt-cond"><option>Baik</option><option>Perlu Perbaikan</option><option>Tidak Bisa Dijual</option></select></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addRetur()">+ Tambah Retur</button>
+          <div class="divider"></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Qty</th><th>Alasan</th><th>Kondisi</th><th></th></tr></thead><tbody id="tbl-retur"></tbody></table></div>
+        </div>
+
+        <!-- Ringkasan -->
+        <div id="esec-ringkasan" class="panel" style="display:none">
+          <div class="panel-header">
+            <div><div class="panel-title">Ringkasan Stok Akhir</div><div class="panel-sub">Stok Akhir = Stok Awal - Terjual + Diterima + Retur</div></div>
+            <button class="btn btn-primary" onclick="saveEntry()">Simpan & Selesai</button>
+          </div>
+          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Stok Awal</th><th>Terjual</th><th>Diterima</th><th>Retur</th><th>Stok Akhir</th><th>Status</th></tr></thead><tbody id="tbl-ringkasan"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ TARGET VS AKTUAL ═══ -->
+    <div class="page" id="page-target">
+      <div class="metrics" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <div class="metric accent-blue"><div class="metric-label">Target Bulan Ini</div><div class="metric-val">Rp 1,2 M</div><div class="metric-sub neu">April 2026</div></div>
+        <div class="metric accent-green"><div class="metric-label">Aktual Saat Ini</div><div class="metric-val">Rp 748 Jt</div><div class="metric-sub up">62% tercapai</div></div>
+        <div class="metric accent-amber"><div class="metric-label">Sisa Hari</div><div class="metric-val">22 hari</div><div class="metric-sub neu">perlu Rp 20,5 Jt/hari</div></div>
+      </div>
+      <div class="row2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Target vs Aktual per Toko</div></div>
+          <div id="target-bars"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Pencapaian per Kategori</div></div>
+          <div id="cat-bars"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PRODUK TERLARIS ═══ -->
+    <div class="page" id="page-topsku">
+      <div class="filter-row">
+        <select><option>Bulan Ini</option><option>7 Hari</option><option>30 Hari</option></select>
+        <select id="top-store-f"><option>Semua Toko</option></select>
+      </div>
+      <div class="row2">
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Top 10 Produk Terlaris</div><div class="panel-sub">berdasarkan unit terjual</div></div>
+          <div id="top-products"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-header"><div class="panel-title">Top Kategori & Ukuran</div></div>
+          <div class="panel-sub" style="margin-bottom:12px;font-weight:600;font-size:12px;color:var(--text2)">KATEGORI</div>
+          <div id="top-cats"></div>
+          <div class="divider"></div>
+          <div class="panel-sub" style="margin-bottom:12px;font-weight:600;font-size:12px;color:var(--text2)">UKURAN</div>
+          <div id="top-sizes"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PERINGATAN ═══ -->
+    <div class="page" id="page-alerts">
+      <div class="metrics" style="grid-template-columns:repeat(3,minmax(0,1fr))">
+        <div class="metric accent-red"><div class="metric-label">Peringatan Kritis</div><div class="metric-val" style="color:var(--danger)">3</div><div class="metric-sub down">tindakan segera</div></div>
+        <div class="metric accent-amber"><div class="metric-label">Peringatan Sedang</div><div class="metric-val" style="color:var(--accent2)">2</div><div class="metric-sub warn" style="color:var(--accent2)">perlu diperhatikan</div></div>
+        <div class="metric accent-blue"><div class="metric-label">Informasi</div><div class="metric-val" style="color:var(--accent)">1</div><div class="metric-sub neu">informasi umum</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">Semua Peringatan</div></div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>Tingkat</th><th>Kategori</th><th>Pesan</th><th>Toko</th><th>Detail</th><th>Waktu</th></tr></thead>
+          <tbody id="alerts-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ KELOLA TOKO ═══ -->
+    <div class="page" id="page-stores">
+      <div class="panel">
+        <div class="panel-title" style="margin-bottom:12px">Tambah Toko Baru</div>
+        <div id="notif-store" class="notif"></div>
+        <div class="form-grid" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:12px">
+          <div class="form-group"><label>ID Vendor</label><input id="ns-vid" placeholder="555"></div>
+          <div class="form-group"><label>ID Brand</label><input id="ns-bid" placeholder="BRD-001"></div>
+          <div class="form-group"><label>Nama Toko</label><input id="ns-name" placeholder="Metmal Bekasi"></div>
+          <div class="form-group"><label>Kota</label><input id="ns-city" placeholder="Bekasi"></div>
+          <div class="form-group"><label>Wilayah</label><input id="ns-region" placeholder="Jawa Barat"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="addStore()">+ Tambah Toko</button>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <div class="panel-title">Daftar Toko (<span id="store-count">0</span>)</div>
+          <input placeholder="Cari toko..." id="store-search" oninput="renderStorePage()" style="padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text);outline:none;width:200px">
+        </div>
+        <div class="tbl-wrap">
+          <table><thead><tr><th>ID Vendor</th><th>ID Brand</th><th>Nama Toko</th><th>Kota</th><th>Wilayah</th><th>Total SKU</th><th></th></tr></thead>
+          <tbody id="store-table"></tbody></table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+// ── DATA ────────────────────────────────────────────────
+let stores = [
+  {vid:'555',bid:'BRD-001',name:'Metmal Bekasi',city:'Bekasi',region:'Jawa Barat'},
+  {vid:'556',bid:'BRD-002',name:'Metmal Jakarta',city:'Jakarta',region:'DKI Jakarta'},
+  {vid:'557',bid:'BRD-003',name:'Metmal Surabaya',city:'Surabaya',region:'Jawa Timur'},
+  {vid:'558',bid:'BRD-004',name:'Metmal Bandung',city:'Bandung',region:'Jawa Barat'},
+  {vid:'559',bid:'BRD-005',name:'Metmal Medan',city:'Medan',region:'Sumatera Utara'},
+  {vid:'560',bid:'BRD-006',name:'Metmal Semarang',city:'Semarang',region:'Jawa Tengah'},
+];
+
+const storeStats = [
+  {vid:'555',units:187,rev:72500000,target:120000000},
+  {vid:'556',units:214,rev:89200000,target:130000000},
+  {vid:'557',units:98, rev:38400000,target:95000000},
+  {vid:'558',units:156,rev:61800000,target:100000000},
+  {vid:'559',units:112,rev:44100000,target:90000000},
+  {vid:'560',units:89, rev:34700000,target:80000000},
+];
+
+const stockData = [
+  {vid:'555',store:'Metmal Bekasi',prod:'LOIS DENIM PANTS CFL',art:'CFL077D1',size:'30',open:10,sold:8,recv:0,ret:0},
+  {vid:'555',store:'Metmal Bekasi',prod:'LOIS JEANS FASHION:M',art:'LOIS-639500',size:'M',open:5,sold:6,recv:2,ret:1},
+  {vid:'555',store:'Metmal Bekasi',prod:'LOIS DENIM SLIM FIT',art:'SLS047D',size:'32',open:15,sold:4,recv:0,ret:0},
+  {vid:'556',store:'Metmal Jakarta',prod:'LOIS CHINOS PANTS',art:'SLS485BK',size:'L',open:8,sold:9,recv:0,ret:0},
+  {vid:'556',store:'Metmal Jakarta',prod:'LOIS DENIM SLIM FIT',art:'SLS116A',size:'30',open:12,sold:3,recv:5,ret:0},
+  {vid:'557',store:'Metmal Surabaya',prod:'LOIS DENIM PANTS CFL',art:'CFL077D1',size:'34',open:12,sold:3,recv:5,ret:0},
+  {vid:'557',store:'Metmal Surabaya',prod:'LOIS SHIRT KLL511',art:'KLL511',size:'M',open:6,sold:6,recv:0,ret:0},
+  {vid:'558',store:'Metmal Bandung',prod:'LOIS CASUAL TSHIRT',art:'KSL2466',size:'L',open:20,sold:5,recv:0,ret:0},
+  {vid:'558',store:'Metmal Bandung',prod:'LOIS DENIM SLIM FIT',art:'SLS116A',size:'30',open:4,sold:5,recv:0,ret:0},
+  {vid:'559',store:'Metmal Medan',prod:'LOIS JEANS FASHION:M',art:'LOIS-639500',size:'L',open:8,sold:2,recv:3,ret:0},
+];
+
+const orderData = [
+  {no:'ORD-20260401-001',vid:'555',store:'Metmal Bekasi',prod:'LOIS DENIM PANTS CFL',size:'30',qty:2,total:900000,date:'01/04/2026',status:'Selesai'},
+  {no:'ORD-20260401-002',vid:'556',store:'Metmal Jakarta',prod:'LOIS JEANS FASHION:M',size:'M',qty:1,total:450000,date:'01/04/2026',status:'Dikirim'},
+  {no:'ORD-20260401-003',vid:'557',store:'Metmal Surabaya',prod:'LOIS CHINOS PANTS',size:'L',qty:3,total:1200000,date:'01/04/2026',status:'Diproses'},
+  {no:'ORD-20260401-004',vid:'558',store:'Metmal Bandung',prod:'LOIS SHIRT KLL511',size:'M',qty:2,total:600000,date:'01/04/2026',status:'Dikembalikan'},
+  {no:'ORD-20260401-005',vid:'559',store:'Metmal Medan',prod:'LOIS CASUAL TSHIRT',size:'L',qty:4,total:800000,date:'01/04/2026',status:'Selesai'},
+  {no:'ORD-20260401-006',vid:'560',store:'Metmal Semarang',prod:'LOIS DENIM SLIM FIT',size:'30',qty:1,total:480000,date:'01/04/2026',status:'Dikirim'},
+  {no:'ORD-20260401-007',vid:'555',store:'Metmal Bekasi',prod:'LOIS JACKET MJF177',size:'XL',qty:1,total:750000,date:'01/04/2026',status:'Diproses'},
+  {no:'ORD-20260401-008',vid:'556',store:'Metmal Jakarta',prod:'LOIS DENIM PANTS CFL',size:'32',qty:2,total:900000,date:'01/04/2026',status:'Selesai'},
+];
+
+const topProducts = [
+  {name:'LOIS DENIM PANTS CFL',art:'CFL077D1',cat:'Denim',units:342},
+  {name:'LOIS JEANS FASHION:M',art:'LOIS-639500',cat:'Jeans',units:287},
+  {name:'LOIS DENIM SLIM FIT',art:'SLS047D',cat:'Denim',units:241},
+  {name:'LOIS CHINOS PANTS',art:'SLS485BK',cat:'Chinos',units:198},
+  {name:'LOIS CASUAL TSHIRT',art:'KSL2466',cat:'T-Shirt',units:176},
+  {name:'LOIS SHIRT KLL511',art:'KLL511',cat:'Kemeja',units:154},
+  {name:'LOIS JACKET MJF177',art:'MJF177',cat:'Jaket',units:132},
+  {name:'LOIS DENIM SLIM:M',art:'SLS116A',cat:'Denim',units:118},
+  {name:'LOIS CHINOS STRETCH',art:'SLS113B',cat:'Chinos',units:97},
+  {name:'LOIS KOKO SHIRT',art:'KLS612',cat:'Kemeja',units:84},
+];
+
+const alertsData = [
+  {level:'Kritis',cat:'Stok',msg:'23 SKU stok minus di 8 toko berbeda',store:'Multi-toko',detail:'Butuh restock segera',time:'2 mnt lalu'},
+  {level:'Kritis',cat:'Stok',msg:'LOIS JEANS 639500 ukuran 30 habis di 5 toko',store:'5 toko',detail:'Stok = 0',time:'3 jam lalu'},
+  {level:'Kritis',cat:'Target',msg:'3 toko di bawah 50% target bulan ini',store:'Sby, Smg, Mks',detail:'Perlu tindakan segera',time:'1 jam lalu'},
+  {level:'Sedang',cat:'Target',msg:'Metmal Surabaya baru 41% target',store:'Metmal Surabaya',detail:'Target Rp 95 Jt, Aktual Rp 38 Jt',time:'1 jam lalu'},
+  {level:'Sedang',cat:'Input',msg:'53 toko belum input data hari ini',store:'Multi-toko',detail:'Batas input pukul 22.00',time:'Sejak pagi'},
+  {level:'Info',cat:'Pengiriman',msg:'SJ-2024-089 tiba di 12 toko',store:'Multi-toko',detail:'Total 480 unit diterima',time:'5 jam lalu'},
+];
+
+// Entry state
+let activeStore=null,activeDate=null;
+let entryData={};
+
+// ── HELPERS ────────────────────────────────────────────
+function fmtRp(n){return 'Rp '+Math.round(n).toLocaleString('id-ID')}
+function fmtM(n){return n>=1000000?'Rp '+(n/1000000).toFixed(1)+' Jt':fmtRp(n)}
+function closing(r){return r.open-r.sold+r.recv+(r.ret||0)}
+function statusBadge(v){
+  if(v<0) return '<span class="badge b-danger">MINUS</span>';
+  if(v===0) return '<span class="badge b-warn">NOL</span>';
+  if(v<=5) return '<span class="badge b-warn">RENDAH</span>';
+  return '<span class="badge b-ok">OK</span>';
+}
+function barColor(pct){return pct>=80?'green':pct>=50?'amber':'red'}
+function showNotif(id,msg,type){
+  const el=document.getElementById(id);
+  if(!el)return;
+  el.className='notif show '+type;
+  el.textContent=msg;
+  setTimeout(()=>{el.className='notif'},2500);
+}
+
+// ── NAVIGATION ──────────────────────────────────────────
+function goPage(p,el){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
+  if(el) el.classList.add('active');
+  const titles={dashboard:'Dashboard',sales:'Penjualan',stock:'Monitor Stok',orders:'Pesanan',entry:'Input Harian',target:'Target vs Aktual',topsku:'Produk Terlaris',alerts:'Peringatan',stores:'Kelola Toko'};
+  document.getElementById('page-title').textContent=titles[p]||p;
+  const fns={dashboard:renderDashboard,sales:renderSalesPage,stock:renderStockPage,orders:renderOrderPage,target:renderTargetPage,topsku:renderTopSku,alerts:renderAlertsPage,stores:renderStorePage};
+  if(fns[p]) fns[p]();
+}
+
+function switchSec(s,el){
+  ['soh','penjualan','penerimaan','retur','ringkasan'].forEach(id=>{
+    document.getElementById('esec-'+id).style.display=id===s?'block':'none';
+  });
+  document.querySelectorAll('.snav-item').forEach(x=>x.classList.remove('active'));
+  if(el) el.classList.add('active');
+  if(s==='penjualan'||s==='penerimaan'||s==='retur') populateArtDropdowns();
+  if(s==='ringkasan') renderRingkasan();
+}
+
+// ── DASHBOARD ──────────────────────────────────────────
+function renderDashboard(){
+  const tb=document.getElementById('dash-stores');
+  tb.innerHTML=stores.map(s=>{
+    const stat=storeStats.find(x=>x.vid===s.vid)||{units:0,rev:0,target:100000000};
+    const pct=Math.round(stat.rev/stat.target*100);
+    const bc=barColor(pct);
+    const badge=pct>=80?'<span class="badge b-ok">On Track</span>':pct>=50?'<span class="badge b-warn">Perlu Perhatian</span>':'<span class="badge b-danger">Di Bawah Target</span>';
+    return `<tr><td><b>${s.name}</b></td><td>${s.city}</td><td class="mono">${stat.units.toLocaleString('id-ID')}</td><td class="mono">${fmtM(stat.rev)}</td><td class="mono">${fmtM(stat.target)}</td>
+    <td style="min-width:140px"><div style="display:flex;align-items:center;gap:8px"><div style="flex:1"><div class="bar-wrap"><div class="bar-fill ${bc}" style="width:${Math.min(pct,100)}%"></div></div></div><span class="mono" style="font-size:11px">${pct}%</span></div></td>
+    <td>${badge}</td></tr>`;
+  }).join('');
+
+  const days=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
+  const actuals=[32,41,38,45,52,68,48];
+  const targets=[40,40,40,40,40,40,40];
+  const maxV=Math.max(...actuals,...targets);
+  document.getElementById('chart-weekly').innerHTML=days.map((d,i)=>`
+    <div class="bar-col">
+      <div class="c-val">${actuals[i]}</div>
+      <div style="display:flex;gap:2px;align-items:flex-end;flex:1;width:100%">
+        <div class="bar-rect primary" style="flex:1;height:${Math.round(actuals[i]/maxV*120)}px"></div>
+        <div class="bar-rect secondary" style="flex:1;height:${Math.round(targets[i]/maxV*120)}px"></div>
+      </div>
+      <div class="c-lbl">${d}</div>
+    </div>`).join('');
+}
+
+// ── SALES ──────────────────────────────────────────────
+function renderSalesPage(){
+  updateStoreDropdowns();
+  const cats=['Denim & Jeans','Chinos','Kemeja','T-Shirt','Jaket','Aksesoris'];
+  document.getElementById('sales-table').innerHTML=stores.map(s=>{
+    const stat=storeStats.find(x=>x.vid===s.vid)||{units:0,rev:0};
+    const trend=stat.units>150?'↑':'↓';
+    const pct=Math.round(Math.random()*15+3);
+    const tc=trend==='↑'?'var(--accent3)':'var(--danger)';
+    const cat=cats[Math.floor(Math.random()*cats.length)];
+    return `<tr><td><b>${s.name}</b></td><td>${s.city}</td><td><span class="badge b-gray">${cat}</span></td><td class="mono">${stat.units.toLocaleString('id-ID')}</td><td class="mono">${fmtM(stat.rev)}</td><td class="mono">${fmtRp(stat.units>0?Math.round(stat.rev/stat.units):0)}</td><td style="color:${tc};font-weight:600">${trend} ${pct}%</td></tr>`;
+  }).join('');
+}
+
+// ── STOCK ──────────────────────────────────────────────
+function renderStockPage(){
+  updateStoreDropdowns();
+  const q=(document.getElementById('stock-search').value||'').toLowerCase();
+  const f=document.getElementById('stock-filter').value;
+  const st=document.getElementById('stock-store').value;
+  const filtered=stockData.filter(r=>{
+    const c=closing(r);
+    const mq=!q||(r.prod.toLowerCase().includes(q)||r.art.toLowerCase().includes(q));
+    const mf=f==='Semua Status'||(f==='Stok Minus'&&c<0)||(f==='Stok Rendah'&&c>=0&&c<=5)||(f==='Stok OK'&&c>5);
+    const ms=st==='Semua Toko'||r.store===st;
+    return mq&&mf&&ms;
+  });
+  document.getElementById('stock-count').textContent=`${filtered.length} SKU ditampilkan`;
+  const tb=document.getElementById('stock-table');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="10" class="empty">Tidak ada data yang cocok.</td></tr>';return;}
+  tb.innerHTML=filtered.map(r=>{
+    const c=closing(r);
+    return `<tr><td>${r.store}</td><td>${r.prod}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.open}</td><td class="mono">${r.sold}</td><td class="mono">${r.recv}</td><td class="mono">${r.ret||0}</td><td class="mono" style="font-weight:600;color:${c<0?'var(--danger)':c<=5?'var(--accent2)':'var(--accent3)'}">${c}</td><td>${statusBadge(c)}</td></tr>`;
+  }).join('');
+}
+
+// ── ORDERS ──────────────────────────────────────────────
+function renderOrderPage(){
+  const f=document.getElementById('order-filter').value;
+  const filtered=f==='Semua'?orderData:orderData.filter(o=>o.status===f);
+  const statusCls={Selesai:'b-ok',Dikirim:'b-info',Diproses:'b-warn',Dikembalikan:'b-danger'};
+  document.getElementById('order-table').innerHTML=filtered.map(o=>`<tr>
+    <td class="mono" style="font-size:11px">${o.no}</td>
+    <td>${o.store}</td><td>${o.prod}</td>
+    <td><span class="badge b-gray">${o.size}</span></td>
+    <td class="mono">${o.qty}</td>
+    <td class="mono">${fmtRp(o.total)}</td>
+    <td style="color:var(--text2);font-size:12px">${o.date}</td>
+    <td><span class="badge ${statusCls[o.status]||'b-info'}">${o.status}</span></td>
+  </tr>`).join('');
+}
+
+// ── TARGET ──────────────────────────────────────────────
+function renderTargetPage(){
+  document.getElementById('target-bars').innerHTML=stores.map(s=>{
+    const stat=storeStats.find(x=>x.vid===s.vid)||{rev:0,target:100000000};
+    const pct=Math.round(stat.rev/stat.target*100);
+    const bc=barColor(pct);
+    return `<div class="target-row">
+      <div class="target-label" title="${s.name}">${s.name}</div>
+      <div class="target-progress"><div class="bar-wrap"><div class="bar-fill ${bc}" style="width:${Math.min(pct,100)}%"></div></div></div>
+      <div class="target-val">${pct}% — ${fmtM(stat.rev)}</div>
+    </div>`;
+  }).join('');
+
+  const cats=[
+    {name:'Denim & Jeans',pct:72},{name:'Chinos & Twill',pct:58},
+    {name:'Kemeja',pct:81},{name:'T-Shirt',pct:44},{name:'Jaket',pct:67},{name:'Aksesoris',pct:90},
+  ];
+  document.getElementById('cat-bars').innerHTML=cats.map(c=>`<div class="target-row">
+    <div class="target-label">${c.name}</div>
+    <div class="target-progress"><div class="bar-wrap"><div class="bar-fill ${barColor(c.pct)}" style="width:${c.pct}%"></div></div></div>
+    <div class="target-val">${c.pct}%</div>
+  </div>`).join('');
+}
+
+// ── TOP SKU ──────────────────────────────────────────────
+function renderTopSku(){
+  updateStoreDropdowns();
+  const max=topProducts[0].units;
+  const rankCls=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
+  document.getElementById('top-products').innerHTML=topProducts.map((p,i)=>`
+    <div class="top-item">
+      <div class="top-rank ${rankCls(i)}">${i+1}</div>
+      <div class="top-info">
+        <div class="top-name">${p.name}</div>
+        <div class="top-meta mono" style="font-size:11px">${p.art} · <span class="badge b-gray" style="font-size:10px">${p.cat}</span></div>
+        <div class="top-bar"><div class="top-bar-fill" style="width:${Math.round(p.units/max*100)}%"></div></div>
+      </div>
+      <div class="top-qty">${p.units}</div>
+    </div>`).join('');
+
+  const cats=[{n:'Denim & Jeans',u:701},{n:'Chinos',u:295},{n:'Kemeja',u:238},{n:'T-Shirt',u:176},{n:'Jaket',u:132}];
+  const cmax=cats[0].u;
+  document.getElementById('top-cats').innerHTML=cats.map((c,i)=>`
+    <div class="top-item">
+      <div class="top-rank ${rankCls(i)}">${i+1}</div>
+      <div class="top-info"><div class="top-name">${c.n}</div><div class="top-bar"><div class="top-bar-fill" style="width:${Math.round(c.u/cmax*100)}%"></div></div></div>
+      <div class="top-qty">${c.u}</div>
+    </div>`).join('');
+
+  const sizes=[{s:'32',u:312},{s:'30',u:287},{s:'M',u:241},{s:'L',u:198},{s:'34',u:154}];
+  const smax=sizes[0].u;
+  document.getElementById('top-sizes').innerHTML=sizes.map((s,i)=>`
+    <div class="top-item">
+      <div class="top-rank ${rankCls(i)}">${i+1}</div>
+      <div class="top-info"><div class="top-name">Ukuran ${s.s}</div><div class="top-bar"><div class="top-bar-fill" style="width:${Math.round(s.u/smax*100)}%"></div></div></div>
+      <div class="top-qty">${s.u}</div>
+    </div>`).join('');
+}
+
+// ── ALERTS ──────────────────────────────────────────────
+function renderAlertsPage(){
+  const lvl={Kritis:'b-danger',Sedang:'b-warn',Info:'b-info'};
+  document.getElementById('alerts-table').innerHTML=alertsData.map(a=>`<tr>
+    <td><span class="badge ${lvl[a.level]}">${a.level}</span></td>
+    <td><span class="badge b-gray">${a.cat}</span></td>
+    <td style="max-width:250px">${a.msg}</td>
+    <td style="color:var(--text2)">${a.store}</td>
+    <td style="font-size:12px;color:var(--text2)">${a.detail}</td>
+    <td style="font-size:12px;color:var(--text3);white-space:nowrap">${a.time}</td>
+  </tr>`).join('');
+}
+
+// ── STORES ──────────────────────────────────────────────
+function addStore(){
+  const vid=document.getElementById('ns-vid').value.trim();
+  const bid=document.getElementById('ns-bid').value.trim();
+  const name=document.getElementById('ns-name').value.trim();
+  const city=document.getElementById('ns-city').value.trim();
+  const region=document.getElementById('ns-region').value.trim();
+  if(!vid||!bid||!name){showNotif('notif-store','ID Vendor, ID Brand, dan Nama Toko wajib diisi.','error');return;}
+  if(stores.find(s=>s.vid===vid)){showNotif('notif-store','ID Vendor sudah terdaftar.','warn');return;}
+  stores.push({vid,bid,name,city,region});
+  ['ns-vid','ns-bid','ns-name','ns-city','ns-region'].forEach(id=>document.getElementById(id).value='');
+  showNotif('notif-store','Toko berhasil ditambahkan!','success');
+  renderStorePage();
+  updateStoreDropdowns();
+}
+
+function removeStore(vid){
+  if(!confirm('Hapus toko ini?')) return;
+  stores=stores.filter(s=>s.vid!==vid);
+  renderStorePage();
+  updateStoreDropdowns();
+}
+
+function renderStorePage(){
+  const q=(document.getElementById('store-search').value||'').toLowerCase();
+  const filtered=stores.filter(s=>s.name.toLowerCase().includes(q)||s.vid.toLowerCase().includes(q)||s.city.toLowerCase().includes(q));
+  document.getElementById('store-count').textContent=stores.length;
+  const tb=document.getElementById('store-table');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="7" class="empty">Tidak ada toko yang cocok.</td></tr>';return;}
+  tb.innerHTML=filtered.map(s=>{
+    const skus=stockData.filter(r=>r.vid===s.vid).length;
+    return `<tr><td class="mono">${s.vid}</td><td class="mono">${s.bid}</td><td><b>${s.name}</b></td><td>${s.city||'-'}</td><td>${s.region||'-'}</td><td>${skus}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="removeStore('${s.vid}')">Hapus</button></td></tr>`;
+  }).join('');
+}
+
+function updateStoreDropdowns(){
+  const opts='<option>Semua Toko</option>'+stores.map(s=>`<option>${s.name}</option>`).join('');
+  ['stock-store','s-store-f','top-store-f'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.innerHTML=opts;
+  });
+  const esel=document.getElementById('e-store');
+  if(esel) esel.innerHTML='<option value="">-- Pilih Toko --</option>'+stores.map(s=>`<option value="${s.vid}">${s.name} (${s.vid})</option>`).join('');
+}
+
+// ── ENTRY ──────────────────────────────────────────────
+function getE(){
+  const k=activeStore+'|'+activeDate;
+  if(!entryData[k]) entryData[k]={soh:[],penjualan:[],penerimaan:[],retur:[]};
+  return entryData[k];
+}
+
+function loadEntry(){
+  const sv=document.getElementById('e-store').value;
+  const dv=document.getElementById('e-date').value;
+  if(!sv||!dv){alert('Pilih toko dan tanggal terlebih dahulu.');return;}
+  activeStore=sv; activeDate=dv;
+  document.getElementById('entry-sections').style.display='block';
+  switchSec('soh',document.querySelector('.snav-item'));
+  renderSohTable();
+}
+
+function populateArtDropdowns(){
+  const e=getE();
+  const arts=[...new Set(e.soh.map(r=>r.art))];
+  const opts='<option value="">-- Pilih --</option>'+arts.map(a=>`<option>${a}</option>`).join('');
+  ['p-art','r-art','rt-art'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.innerHTML=opts;
+  });
+}
+
+function updateSizeOpts(artId,sizeId){
+  const e=getE();
+  const art=document.getElementById(artId).value;
+  const sizes=e.soh.filter(r=>r.art===art).map(r=>r.size);
+  const el=document.getElementById(sizeId);
+  if(!el) return;
+  el.innerHTML='<option value="">-- Pilih --</option>'+sizes.map(s=>`<option>${s}</option>`).join('');
+}
+
+function addSoh(){
+  const e=getE();
+  const desc=document.getElementById('sa-desc').value.trim();
+  const art=document.getElementById('sa-art').value.trim();
+  const size=document.getElementById('sa-size').value;
+  const sku=document.getElementById('sa-sku').value.trim();
+  const qty=parseInt(document.getElementById('sa-qty').value)||0;
+  if(!art){showNotif('notif-soh','Kode Artikel wajib diisi.','error');return;}
+  if(e.soh.find(r=>r.art===art&&r.size===size)){showNotif('notif-soh','Kombinasi Artikel + Ukuran sudah ada.','warn');return;}
+  e.soh.push({desc,art,size,sku,qty});
+  ['sa-desc','sa-art','sa-sku','sa-qty'].forEach(id=>document.getElementById(id).value='');
+  renderSohTable();
+}
+
+function addSales(){
+  const e=getE();
+  const art=document.getElementById('p-art').value;
+  const size=document.getElementById('p-size').value;
+  const qty=parseInt(document.getElementById('p-qty').value)||0;
+  const price=parseInt(document.getElementById('p-price').value)||0;
+  if(!art||!size||!qty){showNotif('notif-penjualan','Artikel, Ukuran, dan Jumlah wajib diisi.','error');return;}
+  const ref=e.soh.find(r=>r.art===art&&r.size===size);
+  e.penjualan.push({desc:ref?ref.desc:art,art,size,qty,price});
+  ['p-qty','p-price'].forEach(id=>document.getElementById(id).value='');
+  renderPenjualanTable();
+}
+
+function addRecv(){
+  const e=getE();
+  const art=document.getElementById('r-art').value;
+  const size=document.getElementById('r-size').value;
+  const qty=parseInt(document.getElementById('r-qty').value)||0;
+  const doNum=document.getElementById('r-do').value.trim();
+  if(!art||!size||!qty){showNotif('notif-penerimaan','Artikel, Ukuran, dan Jumlah wajib diisi.','error');return;}
+  const ref=e.soh.find(r=>r.art===art&&r.size===size);
+  e.penerimaan.push({desc:ref?ref.desc:art,art,size,qty,doNum});
+  ['r-qty','r-do'].forEach(id=>document.getElementById(id).value='');
+  renderPenerimaanTable();
+}
+
+function addRetur(){
+  const e=getE();
+  const art=document.getElementById('rt-art').value;
+  const size=document.getElementById('rt-size').value;
+  const qty=parseInt(document.getElementById('rt-qty').value)||0;
+  const reason=document.getElementById('rt-reason').value;
+  const cond=document.getElementById('rt-cond').value;
+  if(!art||!size||!qty){showNotif('notif-retur','Artikel, Ukuran, dan Jumlah wajib diisi.','error');return;}
+  const ref=e.soh.find(r=>r.art===art&&r.size===size);
+  e.retur.push({desc:ref?ref.desc:art,art,size,qty,reason,cond});
+  ['rt-qty'].forEach(id=>document.getElementById(id).value='');
+  renderReturTable();
+}
+
+function delRow(type,idx){const e=getE();e[type].splice(idx,1);renderAll();}
+function renderAll(){renderSohTable();renderPenjualanTable();renderPenerimaanTable();renderReturTable();}
+
+function rowDel(type,i){return `<button class="btn btn-danger btn-sm" onclick="delRow('${type}',${i})">Hapus</button>`}
+
+function renderSohTable(){
+  const e=getE();const tb=document.getElementById('tbl-soh');
+  if(!e.soh.length){tb.innerHTML='<tr><td colspan="6" class="empty">Belum ada stok awal.</td></tr>';return;}
+  tb.innerHTML=e.soh.map((r,i)=>`<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.sku||'-'}</td><td class="mono">${r.qty}</td><td>${rowDel('soh',i)}</td></tr>`).join('');
+}
+function renderPenjualanTable(){
+  const e=getE();const tb=document.getElementById('tbl-penjualan');
+  if(!e.penjualan.length){tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada penjualan.</td></tr>';return;}
+  tb.innerHTML=e.penjualan.map((r,i)=>`<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.qty}</td><td class="mono">${fmtRp(r.price)}</td><td class="mono">${fmtRp(r.qty*r.price)}</td><td>${rowDel('penjualan',i)}</td></tr>`).join('');
+}
+function renderPenerimaanTable(){
+  const e=getE();const tb=document.getElementById('tbl-penerimaan');
+  if(!e.penerimaan.length){tb.innerHTML='<tr><td colspan="6" class="empty">Belum ada penerimaan.</td></tr>';return;}
+  tb.innerHTML=e.penerimaan.map((r,i)=>`<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.qty}</td><td>${r.doNum||'-'}</td><td>${rowDel('penerimaan',i)}</td></tr>`).join('');
+}
+function renderReturTable(){
+  const e=getE();const tb=document.getElementById('tbl-retur');
+  if(!e.retur.length){tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada retur.</td></tr>';return;}
+  tb.innerHTML=e.retur.map((r,i)=>`<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.qty}</td><td>${r.reason}</td><td>${r.cond}</td><td>${rowDel('retur',i)}</td></tr>`).join('');
+}
+function renderRingkasan(){
+  const e=getE();const tb=document.getElementById('tbl-ringkasan');
+  if(!e.soh.length){tb.innerHTML='<tr><td colspan="9" class="empty">Tambahkan stok awal terlebih dahulu.</td></tr>';return;}
+  tb.innerHTML=e.soh.map(r=>{
+    const sold=e.penjualan.filter(x=>x.art===r.art&&x.size===r.size).reduce((a,x)=>a+x.qty,0);
+    const recv=e.penerimaan.filter(x=>x.art===r.art&&x.size===r.size).reduce((a,x)=>a+x.qty,0);
+    const ret=e.retur.filter(x=>x.art===r.art&&x.size===r.size).reduce((a,x)=>a+x.qty,0);
+    const c=r.qty-sold+recv+ret;
+    return `<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.qty}</td><td class="mono">${sold}</td><td class="mono">${recv}</td><td class="mono">${ret}</td><td class="mono" style="font-weight:600;color:${c<0?'var(--danger)':c<=5?'var(--accent2)':'var(--accent3)'}">${c}</td><td>${statusBadge(c)}</td></tr>`;
+  }).join('');
+}
+
+function saveEntry(){
+  showNotif('notif-soh','Data berhasil disimpan!','success');
+  setTimeout(()=>goPage('dashboard',document.querySelector('.nav-item')),1200);
+}
+
+// ── EXPORT CSV ──────────────────────────────────────────
+function exportTable(id){
+  const tbl=document.getElementById(id);
+  if(!tbl) return;
+  let csv=[];
+  tbl.querySelectorAll('tr').forEach(r=>{
+    const cells=[...r.querySelectorAll('th,td')].map(c=>'"'+c.innerText.replace(/"/g,'""')+'"');
+    csv.push(cells.join(','));
+  });
+  const blob=new Blob([csv.join('\n')],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='lois-portal-export.csv';
+  a.click();
+}
+
+// ── INIT ────────────────────────────────────────────────
+document.getElementById('top-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
+updateStoreDropdowns();
+renderDashboard();
+renderStorePage();
+</script>
+</body>
+</html>
