@@ -240,9 +240,9 @@ tr:hover td{background:#f8fafc}
       <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
       Monitor Stok
     </button>
-    <button class="nav-item" onclick="goPage('orders',this)">
-      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-      Pesanan
+    <button class="nav-item" onclick="goPage('promo',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+      Promosi
     </button>
     <button class="nav-item" onclick="goPage('entry',this)">
       <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -410,27 +410,64 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
 
-    <!-- ═══ PESANAN ═══ -->
-    <div class="page" id="page-orders">
-      <div class="order-status">
-        <div class="os-card"><div class="n" style="color:var(--accent)">482</div><div class="l">Pesanan Masuk</div></div>
-        <div class="os-card"><div class="n" style="color:var(--accent2)">134</div><div class="l">Diproses</div></div>
-        <div class="os-card"><div class="n" style="color:var(--text2)">298</div><div class="l">Dikirim</div></div>
-        <div class="os-card"><div class="n" style="color:var(--accent3)">1.842</div><div class="l">Selesai</div></div>
-        <div class="os-card"><div class="n" style="color:var(--danger)">23</div><div class="l">Dikembalikan</div></div>
+    <!-- ═══ PROMOSI ═══ -->
+    <div class="page" id="page-promo">
+      <div class="metrics">
+        <div class="metric accent-blue"><div class="metric-label">Promo Aktif</div><div class="metric-val" id="pm-active">0</div><div class="metric-sub neu">sedang berjalan</div></div>
+        <div class="metric accent-green"><div class="metric-label">Promo Akan Datang</div><div class="metric-val" id="pm-upcoming">0</div><div class="metric-sub neu">belum mulai</div></div>
+        <div class="metric accent-amber"><div class="metric-label">Artikel Dipromo</div><div class="metric-val" id="pm-articles">0</div><div class="metric-sub neu">total SKU</div></div>
+        <div class="metric accent-red"><div class="metric-label">Promo Berakhir</div><div class="metric-val" id="pm-expired">0</div><div class="metric-sub neu">bulan ini</div></div>
       </div>
+
+      <div class="panel">
+        <div class="panel-title" style="margin-bottom:16px">Tambah Promo Baru</div>
+        <div id="notif-promo" class="notif"></div>
+        <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">
+          <div class="form-group"><label>Nama Promo</label><input id="promo-name" placeholder="cth: Ramadan Sale 2026"></div>
+          <div class="form-group"><label>Jenis Promo</label>
+            <select id="promo-type">
+              <option value="">-- Pilih Jenis --</option>
+              <option>Diskon %</option>
+              <option>Buy 1 Get 1</option>
+              <option>Bundling</option>
+              <option>Cashback</option>
+              <option>Flash Sale</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Nilai Promo</label><input id="promo-value" placeholder="cth: 20% atau Rp 50.000"></div>
+          <div class="form-group"><label>Berlaku Untuk</label>
+            <select id="promo-scope">
+              <option>Semua Toko</option>
+              <option>Toko Tertentu</option>
+              <option>Artikel Tertentu</option>
+              <option>Kombinasi</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">
+          <div class="form-group"><label>Tanggal Mulai</label><input id="promo-start" type="date"></div>
+          <div class="form-group"><label>Tanggal Selesai</label><input id="promo-end" type="date"></div>
+          <div class="form-group"><label>Toko (jika tertentu)</label><input id="promo-stores" placeholder="cth: 555, 556 atau kosongkan"></div>
+          <div class="form-group"><label>Artikel (jika tertentu)</label><input id="promo-articles" placeholder="cth: CFL077D1, SLS047D atau kosongkan"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:12px"><label>Keterangan Tambahan</label><input id="promo-desc" placeholder="Deskripsi singkat promo ini..."></div>
+        <button class="btn btn-primary btn-sm" onclick="addPromo()">+ Tambah Promo</button>
+      </div>
+
       <div class="panel">
         <div class="panel-header">
-          <div class="panel-title">Daftar Pesanan</div>
+          <div class="panel-title">Daftar Semua Promo</div>
           <div style="display:flex;gap:8px">
-            <select id="order-filter" onchange="renderOrderPage()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text)"><option>Semua</option><option>Diproses</option><option>Dikirim</option><option>Selesai</option><option>Dikembalikan</option></select>
-            <button class="btn btn-sm" onclick="exportTable('order-tbl')">Export CSV</button>
+            <select id="promo-filter" onchange="renderPromoPage()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text)">
+              <option>Semua</option><option>Aktif</option><option>Akan Datang</option><option>Berakhir</option>
+            </select>
+            <button class="btn btn-sm" onclick="exportTable('promo-tbl')">Export CSV</button>
           </div>
         </div>
         <div class="tbl-wrap">
-          <table id="order-tbl">
-            <thead><tr><th>No. Order</th><th>Toko</th><th>Produk</th><th>Ukuran</th><th>Qty</th><th>Total</th><th>Tanggal</th><th>Status</th></tr></thead>
-            <tbody id="order-table"></tbody>
+          <table id="promo-tbl">
+            <thead><tr><th>Nama Promo</th><th>Jenis</th><th>Nilai</th><th>Berlaku Untuk</th><th>Toko</th><th>Artikel</th><th>Mulai</th><th>Selesai</th><th>Status</th><th></th></tr></thead>
+            <tbody id="promo-table"></tbody>
           </table>
         </div>
       </div>
@@ -477,15 +514,22 @@ tr:hover td{background:#f8fafc}
         <div id="esec-penjualan" class="panel" style="display:none">
           <div class="panel-title" style="margin-bottom:12px">Input Penjualan Harian</div>
           <div id="notif-penjualan" class="notif"></div>
-          <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">
-            <div class="form-group"><label>Artikel</label><select id="p-art" onchange="updateSizeOpts('p-art','p-size')"><option value="">-- Pilih --</option></select></div>
+          <div class="form-grid" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:12px">
+            <div class="form-group"><label>Artikel</label><select id="p-art" onchange="updateSizeOpts('p-art','p-size');updatePromoOpts()"><option value="">-- Pilih --</option></select></div>
             <div class="form-group"><label>Ukuran</label><select id="p-size"><option value="">-- Pilih --</option></select></div>
             <div class="form-group"><label>Jml Terjual</label><input id="p-qty" type="number" min="1" placeholder="0"></div>
             <div class="form-group"><label>Harga Satuan (Rp)</label><input id="p-price" type="number" min="0" placeholder="0"></div>
+            <div class="form-group">
+              <label>Promo yang Berlaku</label>
+              <select id="p-promo">
+                <option value="">-- Tidak ada promo --</option>
+              </select>
+            </div>
           </div>
+          <div id="promo-preview" style="display:none;margin-bottom:12px;padding:8px 12px;background:#fef9c3;border:1px solid #fde68a;border-radius:var(--radius-sm);font-size:12px;color:#854d0e"></div>
           <button class="btn btn-primary btn-sm" onclick="addSales()">+ Tambah Penjualan</button>
           <div class="divider"></div>
-          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Qty</th><th>Harga</th><th>Total</th><th></th></tr></thead><tbody id="tbl-penjualan"></tbody></table></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Qty</th><th>Harga</th><th>Promo</th><th>Total</th><th></th></tr></thead><tbody id="tbl-penjualan"></tbody></table></div>
         </div>
 
         <!-- Penerimaan -->
@@ -525,7 +569,7 @@ tr:hover td{background:#f8fafc}
             <div><div class="panel-title">Ringkasan Stok Akhir</div><div class="panel-sub">Stok Akhir = Stok Awal - Terjual + Diterima + Retur</div></div>
             <button class="btn btn-primary" onclick="saveEntry()">Simpan & Selesai</button>
           </div>
-          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Stok Awal</th><th>Terjual</th><th>Diterima</th><th>Retur</th><th>Stok Akhir</th><th>Status</th></tr></thead><tbody id="tbl-ringkasan"></tbody></table></div>
+          <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Stok Awal</th><th>Terjual</th><th>Promo</th><th>Diterima</th><th>Retur</th><th>Stok Akhir</th><th>Status</th></tr></thead><tbody id="tbl-ringkasan"></tbody></table></div>
         </div>
       </div>
     </div>
@@ -650,16 +694,7 @@ const stockData = [
   {vid:'559',store:'Metmal Medan',prod:'LOIS JEANS FASHION:M',art:'LOIS-639500',size:'L',open:8,sold:2,recv:3,ret:0},
 ];
 
-const orderData = [
-  {no:'ORD-20260401-001',vid:'555',store:'Metmal Bekasi',prod:'LOIS DENIM PANTS CFL',size:'30',qty:2,total:900000,date:'01/04/2026',status:'Selesai'},
-  {no:'ORD-20260401-002',vid:'556',store:'Metmal Jakarta',prod:'LOIS JEANS FASHION:M',size:'M',qty:1,total:450000,date:'01/04/2026',status:'Dikirim'},
-  {no:'ORD-20260401-003',vid:'557',store:'Metmal Surabaya',prod:'LOIS CHINOS PANTS',size:'L',qty:3,total:1200000,date:'01/04/2026',status:'Diproses'},
-  {no:'ORD-20260401-004',vid:'558',store:'Metmal Bandung',prod:'LOIS SHIRT KLL511',size:'M',qty:2,total:600000,date:'01/04/2026',status:'Dikembalikan'},
-  {no:'ORD-20260401-005',vid:'559',store:'Metmal Medan',prod:'LOIS CASUAL TSHIRT',size:'L',qty:4,total:800000,date:'01/04/2026',status:'Selesai'},
-  {no:'ORD-20260401-006',vid:'560',store:'Metmal Semarang',prod:'LOIS DENIM SLIM FIT',size:'30',qty:1,total:480000,date:'01/04/2026',status:'Dikirim'},
-  {no:'ORD-20260401-007',vid:'555',store:'Metmal Bekasi',prod:'LOIS JACKET MJF177',size:'XL',qty:1,total:750000,date:'01/04/2026',status:'Diproses'},
-  {no:'ORD-20260401-008',vid:'556',store:'Metmal Jakarta',prod:'LOIS DENIM PANTS CFL',size:'32',qty:2,total:900000,date:'01/04/2026',status:'Selesai'},
-];
+// Promo data dikelola di array promos (lihat fungsi addPromo)
 
 const topProducts = [
   {name:'LOIS DENIM PANTS CFL',art:'CFL077D1',cat:'Denim',units:342},
@@ -712,9 +747,9 @@ function goPage(p,el){
   document.getElementById('page-'+p).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles={dashboard:'Dashboard',sales:'Penjualan',stock:'Monitor Stok',orders:'Pesanan',entry:'Input Harian',target:'Target vs Aktual',topsku:'Produk Terlaris',alerts:'Peringatan',stores:'Kelola Toko'};
+  const titles={dashboard:'Dashboard',sales:'Penjualan',stock:'Monitor Stok',promo:'Promosi',entry:'Input Harian',target:'Target vs Aktual',topsku:'Produk Terlaris',alerts:'Peringatan',stores:'Kelola Toko'};
   document.getElementById('page-title').textContent=titles[p]||p;
-  const fns={dashboard:renderDashboard,sales:renderSalesPage,stock:renderStockPage,orders:renderOrderPage,target:renderTargetPage,topsku:renderTopSku,alerts:renderAlertsPage,stores:renderStorePage};
+  const fns={dashboard:renderDashboard,sales:renderSalesPage,stock:renderStockPage,promo:renderPromoPage,orders:()=>{},target:renderTargetPage,topsku:renderTopSku,alerts:renderAlertsPage,stores:renderStorePage};
   if(fns[p]) fns[p]();
 }
 
@@ -792,20 +827,92 @@ function renderStockPage(){
   }).join('');
 }
 
-// ── ORDERS ──────────────────────────────────────────────
-function renderOrderPage(){
-  const f=document.getElementById('order-filter').value;
-  const filtered=f==='Semua'?orderData:orderData.filter(o=>o.status===f);
-  const statusCls={Selesai:'b-ok',Dikirim:'b-info',Diproses:'b-warn',Dikembalikan:'b-danger'};
-  document.getElementById('order-table').innerHTML=filtered.map(o=>`<tr>
-    <td class="mono" style="font-size:11px">${o.no}</td>
-    <td>${o.store}</td><td>${o.prod}</td>
-    <td><span class="badge b-gray">${o.size}</span></td>
-    <td class="mono">${o.qty}</td>
-    <td class="mono">${fmtRp(o.total)}</td>
-    <td style="color:var(--text2);font-size:12px">${o.date}</td>
-    <td><span class="badge ${statusCls[o.status]||'b-info'}">${o.status}</span></td>
+const promos = [
+  {name:'Ramadan Sale 2026',type:'Diskon %',value:'30%',scope:'Semua Toko',stores:'',articles:'',start:'2026-03-01',end:'2026-03-31',desc:'Diskon 30% semua produk selama Ramadan'},
+  {name:'Flash Sale Denim',type:'Flash Sale',value:'50%',scope:'Artikel Tertentu',stores:'',articles:'CFL077D1, SLS047D',start:'2026-04-15',end:'2026-04-15',desc:'Flash sale khusus produk denim'},
+  {name:'BOGO Kaos',type:'Buy 1 Get 1',value:'Buy 1 Get 1',scope:'Toko Tertentu',stores:'555, 556',articles:'KSL2466',start:'2026-04-01',end:'2026-04-30',desc:'Beli 1 gratis 1 untuk kaos di toko tertentu'},
+  {name:'Cashback Chinos',type:'Cashback',value:'Rp 50.000',scope:'Kombinasi',stores:'557, 558',articles:'SLS485BK',start:'2026-04-20',end:'2026-05-20',desc:'Cashback Rp 50.000 untuk pembelian chinos'},
+];
+
+function promoStatus(p){
+  const now=new Date(); const s=new Date(p.start); const e=new Date(p.end);
+  if(now<s) return 'Akan Datang';
+  if(now>e) return 'Berakhir';
+  return 'Aktif';
+}
+
+function addPromo(){
+  const name=document.getElementById('promo-name').value.trim();
+  const type=document.getElementById('promo-type').value;
+  const value=document.getElementById('promo-value').value.trim();
+  const scope=document.getElementById('promo-scope').value;
+  const start=document.getElementById('promo-start').value;
+  const end=document.getElementById('promo-end').value;
+  const stores=document.getElementById('promo-stores').value.trim();
+  const articles=document.getElementById('promo-articles').value.trim();
+  const desc=document.getElementById('promo-desc').value.trim();
+  if(!name||!type||!value||!start||!end){showNotif('notif-promo','Nama, Jenis, Nilai, dan Tanggal wajib diisi.','error');return;}
+  if(new Date(start)>new Date(end)){showNotif('notif-promo','Tanggal mulai tidak boleh setelah tanggal selesai.','error');return;}
+  promos.push({name,type,value,scope,stores,articles,start,end,desc});
+  ['promo-name','promo-value','promo-stores','promo-articles','promo-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('promo-type').value='';
+  showNotif('notif-promo','Promo berhasil ditambahkan!','success');
+  renderPromoPage();
+  updatePromoOpts();
+}
+
+function removePromo(idx){
+  if(!confirm('Hapus promo ini?')) return;
+  promos.splice(idx,1);
+  renderPromoPage();
+  updatePromoOpts();
+}
+
+function renderPromoPage(){
+  const f=document.getElementById('promo-filter')?document.getElementById('promo-filter').value:'Semua';
+  const active=promos.filter(p=>promoStatus(p)==='Aktif');
+  const upcoming=promos.filter(p=>promoStatus(p)==='Akan Datang');
+  const expired=promos.filter(p=>promoStatus(p)==='Berakhir');
+  const allArts=promos.reduce((a,p)=>a+(p.articles?p.articles.split(',').length:0),0);
+  document.getElementById('pm-active').textContent=active.length;
+  document.getElementById('pm-upcoming').textContent=upcoming.length;
+  document.getElementById('pm-articles').textContent=allArts;
+  document.getElementById('pm-expired').textContent=expired.length;
+  const filtered=f==='Semua'?promos:promos.filter(p=>promoStatus(p)===f);
+  const tb=document.getElementById('promo-table');
+  if(!filtered.length){tb.innerHTML='<tr><td colspan="10" class="empty">Belum ada promo. Tambahkan promo di atas.</td></tr>';return;}
+  const statusCls={'Aktif':'b-ok','Akan Datang':'b-info','Berakhir':'b-gray'};
+  const typeCls={'Diskon %':'b-danger','Flash Sale':'b-danger','Buy 1 Get 1':'b-purple','Bundling':'b-info','Cashback':'b-warn'};
+  tb.innerHTML=filtered.map((p,i)=>`<tr>
+    <td><b>${p.name}</b>${p.desc?`<div style="font-size:11px;color:var(--text2);margin-top:2px">${p.desc}</div>`:''}</td>
+    <td><span class="badge ${typeCls[p.type]||'b-gray'}">${p.type}</span></td>
+    <td style="font-weight:600">${p.value}</td>
+    <td>${p.scope}</td>
+    <td style="font-size:12px;color:var(--text2)">${p.stores||'Semua'}</td>
+    <td style="font-size:12px;color:var(--text2)">${p.articles||'Semua'}</td>
+    <td style="font-size:12px">${p.start}</td>
+    <td style="font-size:12px">${p.end}</td>
+    <td><span class="badge ${statusCls[promoStatus(p)]}">${promoStatus(p)}</span></td>
+    <td><button class="btn btn-danger btn-sm" onclick="removePromo(${i})">Hapus</button></td>
   </tr>`).join('');
+}
+
+function updatePromoOpts(){
+  const art=document.getElementById('p-art')?document.getElementById('p-art').value:'';
+  const activePromos=promos.filter(p=>promoStatus(p)==='Aktif');
+  const relevant=activePromos.filter(p=>{
+    if(p.scope==='Semua Toko'||p.scope==='Artikel Tertentu'&&(!p.articles||p.articles.includes(art))||p.scope==='Toko Tertentu'||p.scope==='Kombinasi') return true;
+    return false;
+  });
+  const sel=document.getElementById('p-promo');
+  if(!sel) return;
+  sel.innerHTML='<option value="">-- Tidak ada promo --</option>'+relevant.map(p=>`<option value="${p.name}">${p.name} (${p.type} ${p.value})</option>`).join('');
+  sel.onchange=function(){
+    const preview=document.getElementById('promo-preview');
+    if(!this.value){preview.style.display='none';return;}
+    const pr=promos.find(p=>p.name===this.value);
+    if(pr){preview.style.display='block';preview.innerHTML=`<b>Promo aktif:</b> ${pr.name} — ${pr.type} <b>${pr.value}</b> | Berlaku s/d: ${pr.end}${pr.desc?` | ${pr.desc}`:''}`;}
+  };
 }
 
 // ── TARGET ──────────────────────────────────────────────
@@ -980,10 +1087,13 @@ function addSales(){
   const size=document.getElementById('p-size').value;
   const qty=parseInt(document.getElementById('p-qty').value)||0;
   const price=parseInt(document.getElementById('p-price').value)||0;
+  const promo=document.getElementById('p-promo').value||'';
   if(!art||!size||!qty){showNotif('notif-penjualan','Artikel, Ukuran, dan Jumlah wajib diisi.','error');return;}
   const ref=e.soh.find(r=>r.art===art&&r.size===size);
-  e.penjualan.push({desc:ref?ref.desc:art,art,size,qty,price});
+  e.penjualan.push({desc:ref?ref.desc:art,art,size,qty,price,promo});
   ['p-qty','p-price'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('p-promo').value='';
+  document.getElementById('promo-preview').style.display='none';
   renderPenjualanTable();
 }
 
@@ -1026,8 +1136,8 @@ function renderSohTable(){
 }
 function renderPenjualanTable(){
   const e=getE();const tb=document.getElementById('tbl-penjualan');
-  if(!e.penjualan.length){tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada penjualan.</td></tr>';return;}
-  tb.innerHTML=e.penjualan.map((r,i)=>`<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.qty}</td><td class="mono">${fmtRp(r.price)}</td><td class="mono">${fmtRp(r.qty*r.price)}</td><td>${rowDel('penjualan',i)}</td></tr>`).join('');
+  if(!e.penjualan.length){tb.innerHTML='<tr><td colspan="8" class="empty">Belum ada penjualan.</td></tr>';return;}
+  tb.innerHTML=e.penjualan.map((r,i)=>`<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.qty}</td><td class="mono">${fmtRp(r.price)}</td><td>${r.promo?`<span class="badge b-warn">${r.promo}</span>`:'<span style="color:var(--text3);font-size:12px">-</span>'}</td><td class="mono">${fmtRp(r.qty*r.price)}</td><td>${rowDel('penjualan',i)}</td></tr>`).join('');
 }
 function renderPenerimaanTable(){
   const e=getE();const tb=document.getElementById('tbl-penerimaan');
@@ -1041,13 +1151,14 @@ function renderReturTable(){
 }
 function renderRingkasan(){
   const e=getE();const tb=document.getElementById('tbl-ringkasan');
-  if(!e.soh.length){tb.innerHTML='<tr><td colspan="9" class="empty">Tambahkan stok awal terlebih dahulu.</td></tr>';return;}
+  if(!e.soh.length){tb.innerHTML='<tr><td colspan="10" class="empty">Tambahkan stok awal terlebih dahulu.</td></tr>';return;}
   tb.innerHTML=e.soh.map(r=>{
     const sold=e.penjualan.filter(x=>x.art===r.art&&x.size===r.size).reduce((a,x)=>a+x.qty,0);
     const recv=e.penerimaan.filter(x=>x.art===r.art&&x.size===r.size).reduce((a,x)=>a+x.qty,0);
     const ret=e.retur.filter(x=>x.art===r.art&&x.size===r.size).reduce((a,x)=>a+x.qty,0);
+    const promoUsed=[...new Set(e.penjualan.filter(x=>x.art===r.art&&x.size===r.size&&x.promo).map(x=>x.promo))];
     const c=r.qty-sold+recv+ret;
-    return `<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.qty}</td><td class="mono">${sold}</td><td class="mono">${recv}</td><td class="mono">${ret}</td><td class="mono" style="font-weight:600;color:${c<0?'var(--danger)':c<=5?'var(--accent2)':'var(--accent3)'}">${c}</td><td>${statusBadge(c)}</td></tr>`;
+    return `<tr><td>${r.desc||'-'}</td><td class="mono">${r.art}</td><td><span class="badge b-gray">${r.size}</span></td><td class="mono">${r.qty}</td><td class="mono">${sold}</td><td>${promoUsed.length?promoUsed.map(p=>`<span class="badge b-warn" style="font-size:10px">${p}</span>`).join(' '):'<span style="color:var(--text3);font-size:12px">-</span>'}</td><td class="mono">${recv}</td><td class="mono">${ret}</td><td class="mono" style="font-weight:600;color:${c<0?'var(--danger)':c<=5?'var(--accent2)':'var(--accent3)'}">${c}</td><td>${statusBadge(c)}</td></tr>`;
   }).join('');
 }
 
@@ -1076,8 +1187,10 @@ function exportTable(id){
 document.getElementById('top-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
 updateStoreDropdowns();
+updatePromoOpts();
 renderDashboard();
 renderStorePage();
+renderPromoPage();
 </script>
 </body>
 </html>
