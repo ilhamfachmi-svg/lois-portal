@@ -279,6 +279,7 @@ tr:hover td{background:#f8fafc}
         <div class="user-role">Brand Manager</div>
       </div>
     </div>
+    <button onclick="clearStorage()" style="margin-top:10px;width:100%;padding:6px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.35);font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;" onmouseover="this.style.color='rgba(255,255,255,0.7)'" onmouseout="this.style.color='rgba(255,255,255,0.35)'">Reset semua data</button>
   </div>
 </div>
 
@@ -718,11 +719,42 @@ const alertsData = [
   {level:'Info',cat:'Pengiriman',msg:'SJ-2024-089 tiba di 12 toko',store:'Multi-toko',detail:'Total 480 unit diterima',time:'5 jam lalu'},
 ];
 
+// ── LOCALSTORAGE ────────────────────────────────────────
+const LS_STORES   = 'lois_stores';
+const LS_ENTRY    = 'lois_entryData';
+const LS_PROMOS   = 'lois_promos';
+
+function saveToStorage(){
+  try{
+    localStorage.setItem(LS_STORES, JSON.stringify(stores));
+    localStorage.setItem(LS_ENTRY,  JSON.stringify(entryData));
+    localStorage.setItem(LS_PROMOS, JSON.stringify(promos));
+  } catch(e){ console.warn('Gagal simpan ke localStorage:', e); }
+}
+
+function loadFromStorage(){
+  try{
+    const s=localStorage.getItem(LS_STORES);
+    const e=localStorage.getItem(LS_ENTRY);
+    const p=localStorage.getItem(LS_PROMOS);
+    if(s){ const parsed=JSON.parse(s); if(parsed.length) stores.splice(0,stores.length,...parsed); }
+    if(e){ Object.assign(entryData, JSON.parse(e)); }
+    if(p){ const parsed=JSON.parse(p); if(parsed.length) promos.splice(0,promos.length,...parsed); }
+  } catch(e){ console.warn('Gagal load dari localStorage:', e); }
+}
+
+function clearStorage(){
+  if(!confirm('Hapus semua data yang tersimpan? Tindakan ini tidak bisa dibatalkan.')) return;
+  localStorage.removeItem(LS_STORES);
+  localStorage.removeItem(LS_ENTRY);
+  localStorage.removeItem(LS_PROMOS);
+  location.reload();
+}
+
+
 // Entry state
 let activeStore=null,activeDate=null;
 let entryData={};
-
-// ── HELPERS ────────────────────────────────────────────
 function fmtRp(n){return 'Rp '+Math.round(n).toLocaleString('id-ID')}
 function fmtM(n){return n>=1000000?'Rp '+(n/1000000).toFixed(1)+' Jt':fmtRp(n)}
 function closing(r){return r.open-r.sold+r.recv+(r.ret||0)}
@@ -857,6 +889,7 @@ function addPromo(){
   ['promo-name','promo-value','promo-stores','promo-articles','promo-desc'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('promo-type').value='';
   showNotif('notif-promo','Promo berhasil ditambahkan!','success');
+  saveToStorage();
   renderPromoPage();
   updatePromoOpts();
 }
@@ -864,6 +897,7 @@ function addPromo(){
 function removePromo(idx){
   if(!confirm('Hapus promo ini?')) return;
   promos.splice(idx,1);
+  saveToStorage();
   renderPromoPage();
   updatePromoOpts();
 }
@@ -999,6 +1033,7 @@ function addStore(){
   stores.push({vid,bid,name,city,region});
   ['ns-vid','ns-bid','ns-name','ns-city','ns-region'].forEach(id=>document.getElementById(id).value='');
   showNotif('notif-store','Toko berhasil ditambahkan!','success');
+  saveToStorage();
   renderStorePage();
   updateStoreDropdowns();
 }
@@ -1006,6 +1041,7 @@ function addStore(){
 function removeStore(vid){
   if(!confirm('Hapus toko ini?')) return;
   stores=stores.filter(s=>s.vid!==vid);
+  saveToStorage();
   renderStorePage();
   updateStoreDropdowns();
 }
@@ -1078,6 +1114,7 @@ function addSoh(){
   if(e.soh.find(r=>r.art===art&&r.size===size)){showNotif('notif-soh','Kombinasi Artikel + Ukuran sudah ada.','warn');return;}
   e.soh.push({desc,art,size,sku,qty});
   ['sa-desc','sa-art','sa-sku','sa-qty'].forEach(id=>document.getElementById(id).value='');
+  saveToStorage();
   renderSohTable();
 }
 
@@ -1094,6 +1131,7 @@ function addSales(){
   ['p-qty','p-price'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('p-promo').value='';
   document.getElementById('promo-preview').style.display='none';
+  saveToStorage();
   renderPenjualanTable();
 }
 
@@ -1107,6 +1145,7 @@ function addRecv(){
   const ref=e.soh.find(r=>r.art===art&&r.size===size);
   e.penerimaan.push({desc:ref?ref.desc:art,art,size,qty,doNum});
   ['r-qty','r-do'].forEach(id=>document.getElementById(id).value='');
+  saveToStorage();
   renderPenerimaanTable();
 }
 
@@ -1121,10 +1160,11 @@ function addRetur(){
   const ref=e.soh.find(r=>r.art===art&&r.size===size);
   e.retur.push({desc:ref?ref.desc:art,art,size,qty,reason,cond});
   ['rt-qty'].forEach(id=>document.getElementById(id).value='');
+  saveToStorage();
   renderReturTable();
 }
 
-function delRow(type,idx){const e=getE();e[type].splice(idx,1);renderAll();}
+function delRow(type,idx){const e=getE();e[type].splice(idx,1);saveToStorage();renderAll();}
 function renderAll(){renderSohTable();renderPenjualanTable();renderPenerimaanTable();renderReturTable();}
 
 function rowDel(type,i){return `<button class="btn btn-danger btn-sm" onclick="delRow('${type}',${i})">Hapus</button>`}
@@ -1186,11 +1226,23 @@ function exportTable(id){
 // ── INIT ────────────────────────────────────────────────
 document.getElementById('top-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
+loadFromStorage();
 updateStoreDropdowns();
 updatePromoOpts();
 renderDashboard();
 renderStorePage();
 renderPromoPage();
+// Show storage status
+(function(){
+  const saved = localStorage.getItem(LS_STORES);
+  if(saved){
+    const footer = document.querySelector('.sidebar-footer');
+    const indicator = document.createElement('div');
+    indicator.style.cssText='font-size:10px;color:rgba(255,255,255,0.35);margin-top:8px;display:flex;align-items:center;gap:4px;';
+    indicator.innerHTML='<span style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0"></span> Data tersimpan di browser';
+    footer.appendChild(indicator);
+  }
+})();
 </script>
 </body>
 </html>
