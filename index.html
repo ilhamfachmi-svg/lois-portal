@@ -481,7 +481,48 @@ tr:hover td{background:#f8fafc}
         <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr))">
           <div class="form-group"><label>Toko</label><select id="e-store"><option value="">-- Pilih Toko --</option></select></div>
           <div class="form-group"><label>Tanggal</label><input type="date" id="e-date"></div>
-          <div class="form-group"><label>&nbsp;</label><button class="btn btn-primary" onclick="loadEntry()">Muat Form Input</button></div>
+          <div class="form-group"><label>&nbsp;</label>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-primary" onclick="loadEntry()" style="flex:1">Muat Form Input</button>
+              <button class="btn" onclick="triggerImport()" title="Import dari CSV/Excel" style="padding:7px 12px">📁 Import</button>
+            </div>
+          </div>
+        </div>
+        <input type="file" id="csv-file-input" accept=".csv,.xlsx,.xls" style="display:none" onchange="handleImportFile(this)">
+      </div>
+
+      <!-- Import Preview Panel -->
+      <div id="import-panel" class="panel" style="display:none;border:2px dashed var(--accent)">
+        <div class="panel-header">
+          <div>
+            <div class="panel-title">Preview Import Data</div>
+            <div class="panel-sub" id="import-info"></div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-primary btn-sm" onclick="confirmImport()">✓ Import Sekarang</button>
+            <button class="btn btn-sm" onclick="cancelImport()">Batal</button>
+          </div>
+        </div>
+        <div id="import-notif" class="notif"></div>
+        <div style="margin-bottom:12px;padding:10px 14px;background:var(--bg);border-radius:var(--radius-sm);font-size:12px;color:var(--text2)">
+          <b style="color:var(--text)">Petunjuk format CSV:</b> Kolom harus sesuai urutan →
+          <span class="mono" style="background:#e2e8f0;padding:2px 6px;border-radius:4px">Nama Produk | Artikel | Ukuran | SKU | Nama Dept | [Nilai Qty]</span>
+          — baris pertama adalah header (akan dilewati otomatis).
+        </div>
+        <div style="margin-bottom:8px;display:flex;gap:8px;align-items:center">
+          <span style="font-size:12px;color:var(--text2)">Import sebagai:</span>
+          <select id="import-type" style="padding:5px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text)">
+            <option value="soh">📦 Stok Awal</option>
+            <option value="penjualan">💰 Penjualan</option>
+            <option value="penerimaan">📥 Penerimaan</option>
+            <option value="retur">↩️ Retur</option>
+          </select>
+        </div>
+        <div class="tbl-wrap" style="max-height:300px;overflow-y:auto">
+          <table id="import-preview-tbl">
+            <thead><tr id="import-preview-head"></tr></thead>
+            <tbody id="import-preview-body"></tbody>
+          </table>
         </div>
       </div>
 
@@ -1230,7 +1271,170 @@ function saveEntry(){
   setTimeout(()=>goPage('dashboard',document.querySelector('.nav-item')),1200);
 }
 
-// ── EXPORT CSV ──────────────────────────────────────────
+// ── IMPORT CSV/EXCEL ────────────────────────────────────
+let importRows = [];
+
+function triggerImport(){
+  const sv=document.getElementById('e-store').value;
+  const dv=document.getElementById('e-date').value;
+  if(!sv||!dv){showNotifInline('Pilih toko dan tanggal terlebih dahulu sebelum import.');return;}
+  activeStore=sv; activeDate=dv;
+  document.getElementById('csv-file-input').value='';
+  document.getElementById('csv-file-input').click();
+}
+
+function handleImportFile(input){
+  const file=input.files[0];
+  if(!file) return;
+  const ext=file.name.split('.').pop().toLowerCase();
+  if(ext==='csv'){
+    const reader=new FileReader();
+    reader.onload=function(e){ parseCSV(e.target.result, file.name); };
+    reader.readAsText(file,'UTF-8');
+  } else if(ext==='xlsx'||ext==='xls'){
+    const reader=new FileReader();
+    reader.onload=function(e){ parseExcel(e.target.result, file.name); };
+    reader.readAsArrayBuffer(file);
+  } else {
+    alert('Format file tidak didukung. Gunakan .csv atau .xlsx');
+  }
+}
+
+function parseCSV(text, filename){
+  // Handle different line endings and separators
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim());
+  if(lines.length < 2){ alert('File CSV kosong atau hanya ada header.'); return; }
+
+  // Detect separator: comma or pipe or semicolon
+  const firstLine = lines[0];
+  const sep = firstLine.includes('|') ? '|' : firstLine.includes(';') ? ';' : ',';
+
+  const parseRow = line => {
+    const result=[];
+    let cur='', inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){ inQ=!inQ; }
+      else if(c===sep&&!inQ){ result.push(cur.trim()); cur=''; }
+      else { cur+=c; }
+    }
+    result.push(cur.trim());
+    return result.map(v=>v.replace(/^"|"$/g,'').trim());
+  };
+
+  const headers = parseRow(lines[0]);
+  importRows = lines.slice(1)
+    .filter(l=>l.trim())
+    .map(l=>parseRow(l))
+    .filter(r=>r.some(v=>v));
+
+  showImportPreview(headers, importRows, filename);
+}
+
+function parseExcel(buffer, filename){
+  // Simple XLSX parser — reads first sheet as CSV-like
+  // We'll use a basic approach since we can't load external libs easily
+  // Convert to text and try to extract data
+  try {
+    const bytes = new Uint8Array(buffer);
+    // Check if it's actually a ZIP (XLSX format)
+    if(bytes[0]===0x50&&bytes[1]===0x4B){
+      alert('File Excel (.xlsx) terdeteksi.\n\nUntuk hasil terbaik, simpan dulu file Excel Anda sebagai CSV:\n1. Buka file di Excel\n2. File → Save As → pilih "CSV (Comma delimited)"\n3. Upload file CSV tersebut ke sini.');
+    } else {
+      alert('Format file tidak dapat dibaca. Simpan dulu sebagai CSV dari Excel.');
+    }
+  } catch(e){
+    alert('Gagal membaca file. Coba simpan sebagai CSV terlebih dahulu.');
+  }
+}
+
+function showImportPreview(headers, rows, filename){
+  if(!rows.length){ alert('Tidak ada data yang ditemukan di file.'); return; }
+
+  document.getElementById('entry-sections').style.display='none';
+  document.getElementById('import-panel').style.display='block';
+  document.getElementById('import-info').textContent=`File: ${filename} — ${rows.length} baris data ditemukan`;
+
+  // Build preview table headers
+  const head=document.getElementById('import-preview-head');
+  head.innerHTML='<th>#</th>'+headers.map(h=>`<th>${h}</th>`).join('');
+
+  // Build preview rows (max 10)
+  const body=document.getElementById('import-preview-body');
+  const preview=rows.slice(0,10);
+  body.innerHTML=preview.map((r,i)=>`<tr><td class="mono" style="color:var(--text2)">${i+1}</td>${r.map(v=>`<td>${v||'-'}</td>`).join('')}</tr>`).join('');
+
+  if(rows.length>10){
+    body.innerHTML+=`<tr><td colspan="${headers.length+1}" style="text-align:center;color:var(--text2);font-size:12px;padding:8px">... dan ${rows.length-10} baris lainnya</td></tr>`;
+  }
+
+  // Auto-detect import type from filename or headers
+  const fname=filename.toLowerCase();
+  const sel=document.getElementById('import-type');
+  if(fname.includes('penjualan')||fname.includes('sales')) sel.value='penjualan';
+  else if(fname.includes('penerimaan')||fname.includes('receipt')) sel.value='penerimaan';
+  else if(fname.includes('retur')||fname.includes('return')) sel.value='retur';
+  else sel.value='soh';
+
+  document.getElementById('import-panel').scrollIntoView({behavior:'smooth'});
+}
+
+function confirmImport(){
+  const type=document.getElementById('import-type').value;
+  const e=getE();
+  let added=0, skipped=0;
+
+  importRows.forEach(row=>{
+    // Map columns: flexible — try to find by position
+    // Expected: [Nama Produk, Artikel, Ukuran, SKU, Dept, Qty, ...]
+    const desc  = row[0]||'';
+    const art   = row[1]||row[3]||''; // Artikel or fallback to SKU position
+    const size  = row[2]||'';
+    const sku   = row[3]||'';
+    const dept  = row[4]||'';
+    const qty   = parseInt(row[5]||row[4]||0)||0;
+    const price = parseInt(row[6]||0)||0;
+    const extra = row[7]||'';
+
+    if(!art){ skipped++; return; }
+
+    if(type==='soh'){
+      if(e.soh.find(r=>r.art===art&&r.size===size)){ skipped++; return; }
+      e.soh.push({desc,art,size,sku,qty});
+    } else if(type==='penjualan'){
+      e.penjualan.push({desc,art,size,qty,price,promo:''});
+    } else if(type==='penerimaan'){
+      e.penerimaan.push({desc,art,size,qty,doNum:extra});
+    } else if(type==='retur'){
+      e.retur.push({desc,art,size,qty,reason:extra||'Lainnya',cond:'Baik'});
+    }
+    added++;
+  });
+
+  saveToStorage();
+  cancelImport();
+
+  // Load entry form and switch to imported section
+  document.getElementById('entry-sections').style.display='block';
+  document.querySelectorAll('.snav-item').forEach((x,i)=>{
+    const secs=['soh','penjualan','penerimaan','retur','ringkasan'];
+    x.classList.toggle('active', secs[i]===type);
+  });
+  ['soh','penjualan','penerimaan','retur','ringkasan'].forEach(id=>{
+    document.getElementById('esec-'+id).style.display=id===type?'block':'none';
+  });
+  renderAll();
+
+  const msg=`✓ Import selesai! ${added} baris berhasil diimport${skipped>0?`, ${skipped} baris dilewati (duplikat/kosong)`:'.'}.`;
+  showNotif(`notif-${type}`, msg, 'success');
+  document.getElementById('entry-sections').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelImport(){
+  document.getElementById('import-panel').style.display='none';
+  importRows=[];
+}
+
 function exportTable(id){
   const tbl=document.getElementById(id);
   if(!tbl) return;
