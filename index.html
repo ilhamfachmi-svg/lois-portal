@@ -787,7 +787,8 @@ function goPage(p,el){
 
 function switchSec(s,el){
   ['soh','penjualan','penerimaan','retur','ringkasan'].forEach(id=>{
-    document.getElementById('esec-'+id).style.display=id===s?'block':'none';
+    const sec=document.getElementById('esec-'+id);
+    if(sec) sec.style.display=id===s?'block':'none';
   });
   document.querySelectorAll('.snav-item').forEach(x=>x.classList.remove('active'));
   if(el) el.classList.add('active');
@@ -1078,11 +1079,33 @@ function getE(){
 function loadEntry(){
   const sv=document.getElementById('e-store').value;
   const dv=document.getElementById('e-date').value;
-  if(!sv||!dv){alert('Pilih toko dan tanggal terlebih dahulu.');return;}
+  if(!sv){showNotifInline('Pilih toko terlebih dahulu.');return;}
+  if(!dv){showNotifInline('Pilih tanggal terlebih dahulu.');return;}
   activeStore=sv; activeDate=dv;
   document.getElementById('entry-sections').style.display='block';
-  switchSec('soh',document.querySelector('.snav-item'));
+  // Activate first snav-item safely
+  const firstSnav=document.querySelector('.snav-item');
+  document.querySelectorAll('.snav-item').forEach(x=>x.classList.remove('active'));
+  if(firstSnav) firstSnav.classList.add('active');
+  ['soh','penjualan','penerimaan','retur','ringkasan'].forEach(id=>{
+    document.getElementById('esec-'+id).style.display=id==='soh'?'block':'none';
+  });
   renderSohTable();
+  // Scroll to form
+  document.getElementById('entry-sections').scrollIntoView({behavior:'smooth'});
+}
+
+function showNotifInline(msg){
+  let el=document.getElementById('entry-inline-notif');
+  if(!el){
+    el=document.createElement('div');
+    el.id='entry-inline-notif';
+    el.style.cssText='padding:10px 14px;border-radius:8px;font-size:12px;margin-top:10px;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;';
+    document.querySelector('#page-entry .panel').appendChild(el);
+  }
+  el.textContent=msg;
+  el.style.display='block';
+  setTimeout(()=>{el.style.display='none';},3000);
 }
 
 function populateArtDropdowns(){
