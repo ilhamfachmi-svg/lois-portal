@@ -552,6 +552,7 @@ tr:hover td{background:#f8fafc}
             <div class="form-group"><label>Jml Stok Awal</label><input id="sa-qty" type="number" min="0" placeholder="0"></div>
           </div>
           <button class="btn btn-primary btn-sm" onclick="addSoh()">+ Tambah Baris</button>
+          <button class="btn btn-sm" onclick="openCsvImport('soh')" style="margin-left:4px">📁 Import CSV</button>
           <div class="divider"></div>
           <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>SKU</th><th>Stok Awal</th><th></th></tr></thead><tbody id="tbl-soh"></tbody></table></div>
         </div>
@@ -574,6 +575,7 @@ tr:hover td{background:#f8fafc}
           </div>
           <div id="promo-preview" style="display:none;margin-bottom:12px;padding:8px 12px;background:#fef9c3;border:1px solid #fde68a;border-radius:var(--radius-sm);font-size:12px;color:#854d0e"></div>
           <button class="btn btn-primary btn-sm" onclick="addSales()">+ Tambah Penjualan</button>
+          <button class="btn btn-sm" onclick="openCsvImport('penjualan')" style="margin-left:4px">📁 Import CSV</button>
           <div class="divider"></div>
           <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Qty</th><th>Harga</th><th>Promo</th><th>Total</th><th></th></tr></thead><tbody id="tbl-penjualan"></tbody></table></div>
         </div>
@@ -589,6 +591,7 @@ tr:hover td{background:#f8fafc}
             <div class="form-group"><label>No. Surat Jalan</label><input id="r-do" placeholder="SJ-001"></div>
           </div>
           <button class="btn btn-primary btn-sm" onclick="addRecv()">+ Tambah Penerimaan</button>
+          <button class="btn btn-sm" onclick="openCsvImport('penerimaan')" style="margin-left:4px">📁 Import CSV</button>
           <div class="divider"></div>
           <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Qty</th><th>No. SJ</th><th></th></tr></thead><tbody id="tbl-penerimaan"></tbody></table></div>
         </div>
@@ -605,6 +608,7 @@ tr:hover td{background:#f8fafc}
             <div class="form-group"><label>Kondisi</label><select id="rt-cond"><option>Baik</option><option>Perlu Perbaikan</option><option>Tidak Bisa Dijual</option></select></div>
           </div>
           <button class="btn btn-primary btn-sm" onclick="addRetur()">+ Tambah Retur</button>
+          <button class="btn btn-sm" onclick="openCsvImport('retur')" style="margin-left:4px">📁 Import CSV</button>
           <div class="divider"></div>
           <div class="tbl-wrap"><table><thead><tr><th>Produk</th><th>Artikel</th><th>Ukuran</th><th>Qty</th><th>Alasan</th><th>Kondisi</th><th></th></tr></thead><tbody id="tbl-retur"></tbody></table></div>
         </div>
@@ -682,15 +686,34 @@ tr:hover td{background:#f8fafc}
       <div class="panel">
         <div class="panel-title" style="margin-bottom:12px">Tambah Toko Baru</div>
         <div id="notif-store" class="notif"></div>
-        <div class="form-grid" style="grid-template-columns:repeat(5,minmax(0,1fr));margin-bottom:12px">
-          <div class="form-group"><label>ID Vendor</label><input id="ns-vid" placeholder="555"></div>
-          <div class="form-group"><label>ID Brand</label><input id="ns-bid" placeholder="BRD-001"></div>
-          <div class="form-group"><label>Nama Toko</label><input id="ns-name" placeholder="Metmal Bekasi"></div>
-          <div class="form-group"><label>Kota</label><input id="ns-city" placeholder="Bekasi"></div>
-          <div class="form-group"><label>Wilayah</label><input id="ns-region" placeholder="Jawa Barat"></div>
+        <div class="form-grid" style="grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px">
+          <div class="form-group"><label>ID Utama (Brand) *</label><input id="ns-bid" placeholder="cth: BRD-001"></div>
+          <div class="form-group"><label>Nama Toko *</label><input id="ns-name" placeholder="cth: Metmal Bekasi"></div>
+          <div class="form-group"><label>Kota</label><input id="ns-city" placeholder="cth: Bekasi"></div>
+          <div class="form-group"><label>Wilayah</label><input id="ns-region" placeholder="cth: Jawa Barat"></div>
         </div>
-        <button class="btn btn-primary btn-sm" onclick="addStore()">+ Tambah Toko</button>
-        <button class="btn btn-sm" onclick="cancelEdit()" id="cancel-edit-btn" style="display:none">Batal Edit</button>
+        <div style="padding:10px 14px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:12px;border:1px solid var(--border)">
+          <div style="font-size:11px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Kode Toko (isi yang ada, boleh kosong)</div>
+          <div class="form-grid" style="grid-template-columns:repeat(3,minmax(0,1fr));gap:10px">
+            <div class="form-group">
+              <label style="color:#1F6B1F">🟢 Kode Toko Normal</label>
+              <input id="ns-vid" placeholder="cth: 555" style="border-color:#c8e6c9">
+            </div>
+            <div class="form-group">
+              <label style="color:#B5550A">🟠 Kode Toko Diskon</label>
+              <input id="ns-discount" placeholder="cth: 555-D" style="border-color:#ffe0b2">
+            </div>
+            <div class="form-group">
+              <label style="color:#5B21B6">🟣 Barcode Partner</label>
+              <input id="ns-partner" placeholder="cth: BC-9988" style="border-color:#e1bee7">
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="addStore()">+ Tambah Toko</button>
+          <button class="btn btn-sm" onclick="openCsvImport('toko')">📁 Import CSV</button>
+          <button class="btn btn-sm" onclick="cancelEdit()" id="cancel-edit-btn" style="display:none">Batal Edit</button>
+        </div>
       </div>
       <div class="panel">
         <div class="panel-header">
@@ -698,7 +721,7 @@ tr:hover td{background:#f8fafc}
           <input placeholder="Cari toko..." id="store-search" oninput="renderStorePage()" style="padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text);outline:none;width:200px">
         </div>
         <div class="tbl-wrap">
-          <table><thead><tr><th>ID Vendor</th><th>ID Brand</th><th>Nama Toko</th><th>Kota</th><th>Wilayah</th><th>Total SKU</th><th></th></tr></thead>
+          <table><thead><tr><th>ID Utama</th><th>Nama Toko</th><th>Kota</th><th>Wilayah</th><th style="color:#1F6B1F">Kode Normal</th><th style="color:#B5550A">Kode Diskon</th><th style="color:#5B21B6">Barcode Partner</th><th>SKU</th><th></th></tr></thead>
           <tbody id="store-table"></tbody></table>
         </div>
       </div>
@@ -758,6 +781,7 @@ tr:hover td{background:#f8fafc}
             <div class="form-group"><label>Stok Tersedia</label><input id="al-stok" type="number" min="0" placeholder="0"></div>
           </div>
           <button class="btn btn-primary btn-sm" onclick="addArtikel()">+ Tambah Artikel</button>
+          <button class="btn btn-sm" onclick="openCsvImport('artikel')" style="margin-left:4px">📁 Import CSV</button>
           <div class="divider"></div>
           <div class="tbl-wrap" style="max-height:250px;overflow-y:auto">
             <table><thead><tr><th>Artikel</th><th>Ukuran</th><th>Item ID</th><th>Nama Produk</th><th>Stok</th><th></th></tr></thead>
@@ -822,6 +846,61 @@ tr:hover td{background:#f8fafc}
 
   </div>
 </div>
+</div>
+
+<!-- CSV IMPORT MODAL -->
+<div id="csv-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center">
+  <div style="background:var(--surface);border-radius:var(--radius);padding:24px;width:90%;max-width:700px;max-height:85vh;overflow-y:auto;box-shadow:var(--shadow-md)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-size:15px;font-weight:600;color:var(--text)" id="csv-modal-title">Import CSV</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:2px" id="csv-modal-sub"></div>
+      </div>
+      <button onclick="closeCsvModal()" style="background:none;border:none;font-size:18px;cursor:pointer;color:var(--text2);padding:4px">✕</button>
+    </div>
+
+    <!-- Format info -->
+    <div id="csv-format-info" style="padding:10px 14px;background:var(--bg);border-radius:var(--radius-sm);margin-bottom:14px;font-size:12px;border:1px solid var(--border)"></div>
+
+    <!-- Upload area -->
+    <div id="csv-drop-area" onclick="document.getElementById('csv-modal-input').click()"
+      style="border:2px dashed var(--border);border-radius:var(--radius-sm);padding:24px;text-align:center;cursor:pointer;margin-bottom:14px;transition:border-color 0.2s"
+      onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">
+      <div style="font-size:28px;margin-bottom:8px">📁</div>
+      <div style="font-size:13px;font-weight:500;color:var(--text)">Klik untuk pilih file CSV</div>
+      <div style="font-size:12px;color:var(--text2);margin-top:4px">Format: .csv — pisah dengan koma ( , ) atau titik koma ( ; ) atau pipe ( | )</div>
+    </div>
+    <input type="file" id="csv-modal-input" accept=".csv" style="display:none" onchange="handleModalCsv(this)">
+
+    <!-- Preview -->
+    <div id="csv-preview-area" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <div style="font-size:13px;font-weight:500;color:var(--text)" id="csv-preview-info"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <label style="font-size:12px;color:var(--text2)">Baris pertama adalah header:</label>
+          <input type="checkbox" id="csv-has-header" checked onchange="rePreviewCsv()">
+        </div>
+      </div>
+      <div style="overflow-x:auto;max-height:200px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:14px">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead id="csv-preview-head" style="background:var(--bg);position:sticky;top:0"></thead>
+          <tbody id="csv-preview-body"></tbody>
+        </table>
+      </div>
+
+      <!-- Column mapping -->
+      <div id="csv-mapping-area" style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px">Petakan Kolom CSV → Field Portal</div>
+        <div id="csv-mapping-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px"></div>
+      </div>
+
+      <div id="csv-import-notif" class="notif"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn" onclick="closeCsvModal()">Batal</button>
+        <button class="btn btn-primary" onclick="doImportCsv()">✓ Import Sekarang</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -1401,7 +1480,265 @@ function saveEntry(){
   setTimeout(()=>goPage('dashboard',document.querySelector('.nav-item')),1200);
 }
 
-// ── IMPORT CSV/EXCEL ────────────────────────────────────
+// ── CSV IMPORT SYSTEM ───────────────────────────────────
+let csvImportType = '';
+let csvRawRows    = [];
+let csvHeaders    = [];
+
+const CSV_CONFIGS = {
+  soh: {
+    title: 'Import Stok Awal',
+    sub: 'Format: Nama Produk | Artikel | Ukuran | SKU | Jml Stok Awal',
+    fields: [
+      {key:'desc',  label:'Nama Produk',   required:false},
+      {key:'art',   label:'Artikel ★',     required:true},
+      {key:'size',  label:'Ukuran ★',      required:true},
+      {key:'sku',   label:'SKU',           required:false},
+      {key:'qty',   label:'Jml Stok Awal ★', required:true, type:'number'},
+    ]
+  },
+  penjualan: {
+    title: 'Import Penjualan Harian',
+    sub: 'Format: Nama Produk | Artikel | Ukuran | Jml Terjual | Harga Satuan',
+    fields: [
+      {key:'desc',  label:'Nama Produk',     required:false},
+      {key:'art',   label:'Artikel ★',       required:true},
+      {key:'size',  label:'Ukuran ★',        required:true},
+      {key:'qty',   label:'Jml Terjual ★',   required:true, type:'number'},
+      {key:'price', label:'Harga Satuan',     required:false, type:'number'},
+      {key:'promo', label:'Nama Promo',       required:false},
+    ]
+  },
+  penerimaan: {
+    title: 'Import Penerimaan Stok',
+    sub: 'Format: Nama Produk | Artikel | Ukuran | Jml Diterima | No. Surat Jalan',
+    fields: [
+      {key:'desc',  label:'Nama Produk',     required:false},
+      {key:'art',   label:'Artikel ★',       required:true},
+      {key:'size',  label:'Ukuran ★',        required:true},
+      {key:'qty',   label:'Jml Diterima ★',  required:true, type:'number'},
+      {key:'doNum', label:'No. Surat Jalan', required:false},
+    ]
+  },
+  retur: {
+    title: 'Import Retur Barang',
+    sub: 'Format: Nama Produk | Artikel | Ukuran | Jml Retur | Alasan | Kondisi',
+    fields: [
+      {key:'desc',   label:'Nama Produk',   required:false},
+      {key:'art',    label:'Artikel ★',     required:true},
+      {key:'size',   label:'Ukuran ★',      required:true},
+      {key:'qty',    label:'Jml Retur ★',   required:true, type:'number'},
+      {key:'reason', label:'Alasan Retur',  required:false},
+      {key:'cond',   label:'Kondisi',       required:false},
+    ]
+  },
+  toko: {
+    title: 'Import Data Toko',
+    sub: 'Format: ID Utama | Nama Toko | Kota | Wilayah | Kode Normal | Kode Diskon | Barcode Partner',
+    fields: [
+      {key:'bid',      label:'ID Utama ★',      required:true},
+      {key:'name',     label:'Nama Toko ★',      required:true},
+      {key:'city',     label:'Kota',             required:false},
+      {key:'region',   label:'Wilayah',          required:false},
+      {key:'vid',      label:'Kode Normal',       required:false},
+      {key:'discount', label:'Kode Diskon',       required:false},
+      {key:'partner',  label:'Barcode Partner',   required:false},
+    ]
+  },
+  artikel: {
+    title: 'Import Daftar Artikel',
+    sub: 'Format: Artikel | Ukuran | Item ID | Nama Produk | Stok Tersedia',
+    fields: [
+      {key:'art',    label:'Artikel ★',       required:true},
+      {key:'ukuran', label:'Ukuran ★',        required:true},
+      {key:'itemid', label:'Item ID',         required:false},
+      {key:'nama',   label:'Nama Produk',     required:false},
+      {key:'stok',   label:'Stok Tersedia ★', required:true, type:'number'},
+    ]
+  },
+};
+
+let csvColMapping = {}; // {fieldKey: colIndex}
+
+function openCsvImport(type){
+  csvImportType = type;
+  const cfg = CSV_CONFIGS[type];
+  document.getElementById('csv-modal-title').textContent = cfg.title;
+  document.getElementById('csv-modal-sub').textContent   = cfg.sub;
+  document.getElementById('csv-format-info').innerHTML   =
+    `<b>Kolom yang dibutuhkan:</b> ${cfg.fields.map(f=>f.label).join(' &nbsp;|&nbsp; ')}<br>
+     <span style="color:var(--text3);margin-top:4px;display:block">★ = wajib diisi &nbsp;|&nbsp; Baris pertama boleh header atau langsung data</span>`;
+  document.getElementById('csv-preview-area').style.display='none';
+  document.getElementById('csv-modal-input').value='';
+  csvRawRows=[]; csvHeaders=[]; csvColMapping={};
+  document.getElementById('csv-modal').style.display='flex';
+}
+
+function closeCsvModal(){
+  document.getElementById('csv-modal').style.display='none';
+  csvRawRows=[]; csvHeaders=[]; csvColMapping={};
+}
+
+function handleModalCsv(input){
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{ parseCsvModal(e.target.result); };
+  reader.readAsText(file,'UTF-8');
+}
+
+function parseCsvModal(text){
+  const lines=text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n').filter(l=>l.trim());
+  if(!lines.length){ alert('File CSV kosong.'); return; }
+  const sep=lines[0].includes('|')? '|' : lines[0].includes(';')? ';' : ',';
+  const parseRow=line=>{
+    const res=[]; let cur='',inQ=false;
+    for(let i=0;i<line.length;i++){
+      const c=line[i];
+      if(c==='"'){inQ=!inQ;}
+      else if(c===sep&&!inQ){res.push(cur.trim());cur='';}
+      else{cur+=c;}
+    }
+    res.push(cur.trim());
+    return res.map(v=>v.replace(/^"|"$/g,'').trim());
+  };
+  csvRawRows=lines.map(l=>parseRow(l));
+  rePreviewCsv();
+}
+
+function rePreviewCsv(){
+  const hasHeader=document.getElementById('csv-has-header').checked;
+  csvHeaders = hasHeader ? csvRawRows[0] : csvRawRows[0].map((_,i)=>`Kolom ${i+1}`);
+  const dataRows = hasHeader ? csvRawRows.slice(1) : csvRawRows;
+
+  document.getElementById('csv-preview-info').textContent=
+    `${dataRows.length} baris data ditemukan`;
+
+  // Preview table
+  const head=document.getElementById('csv-preview-head');
+  const body=document.getElementById('csv-preview-body');
+  head.innerHTML='<tr><th style="padding:6px 10px;border-bottom:1px solid var(--border)">#</th>'+
+    csvHeaders.map(h=>`<th style="padding:6px 10px;border-bottom:1px solid var(--border);white-space:nowrap">${h}</th>`).join('')+'</tr>';
+  body.innerHTML=dataRows.slice(0,8).map((row,i)=>`<tr style="${i%2===0?'background:var(--bg)':''}">
+    <td style="padding:5px 10px;border-bottom:1px solid var(--border);color:var(--text3);font-size:11px">${i+1}</td>
+    ${row.map(v=>`<td style="padding:5px 10px;border-bottom:1px solid var(--border);white-space:nowrap">${v||'-'}</td>`).join('')}
+  </tr>`).join('');
+  if(dataRows.length>8){
+    body.innerHTML+=`<tr><td colspan="${csvHeaders.length+1}" style="padding:6px;text-align:center;color:var(--text3);font-size:11px">... dan ${dataRows.length-8} baris lainnya</td></tr>`;
+  }
+
+  // Auto-detect column mapping
+  const cfg=CSV_CONFIGS[csvImportType];
+  csvColMapping={};
+  cfg.fields.forEach(f=>{
+    // Try to auto-match by header name similarity
+    const idx=csvHeaders.findIndex(h=>{
+      const hn=h.toLowerCase().replace(/[^a-z0-9]/g,'');
+      const fn=f.label.toLowerCase().replace(/[^a-z0-9★]/g,'').replace('★','');
+      return hn.includes(fn.substring(0,4)) || fn.includes(hn.substring(0,4));
+    });
+    csvColMapping[f.key] = idx >= 0 ? idx : (cfg.fields.indexOf(f));
+  });
+
+  // Mapping dropdowns
+  const grid=document.getElementById('csv-mapping-grid');
+  grid.innerHTML=cfg.fields.map(f=>`
+    <div class="form-group">
+      <label style="${f.required?'color:var(--accent);font-weight:600':''}">
+        ${f.label}${f.required?' ★':''}
+      </label>
+      <select onchange="csvColMapping['${f.key}']=parseInt(this.value)"
+        style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text)">
+        <option value="-1">-- Tidak ada --</option>
+        ${csvHeaders.map((h,i)=>`<option value="${i}" ${csvColMapping[f.key]===i?'selected':''}>${h||'Kolom '+(i+1)}</option>`).join('')}
+      </select>
+    </div>`).join('');
+
+  document.getElementById('csv-preview-area').style.display='block';
+}
+
+function doImportCsv(){
+  const cfg=CSV_CONFIGS[csvImportType];
+  const hasHeader=document.getElementById('csv-has-header').checked;
+  const dataRows=hasHeader? csvRawRows.slice(1): csvRawRows;
+
+  // Validate required fields have mapping
+  const missing=cfg.fields.filter(f=>f.required && (csvColMapping[f.key]==null||csvColMapping[f.key]<0));
+  if(missing.length){
+    showNotif('csv-import-notif',`Kolom wajib belum dipetakan: ${missing.map(f=>f.label).join(', ')}`, 'error');
+    return;
+  }
+
+  const getVal=(row,key)=>{
+    const idx=csvColMapping[key];
+    if(idx==null||idx<0) return '';
+    return (row[idx]||'').trim();
+  };
+  const getNum=(row,key)=>parseInt(getVal(row,key).replace(/[^0-9]/g,''))||0;
+
+  let added=0, skipped=0;
+
+  dataRows.filter(r=>r.some(v=>v)).forEach(row=>{
+    try{
+      if(csvImportType==='soh'){
+        const e=getE(); if(!e) return;
+        const art=getVal(row,'art'), size=getVal(row,'size');
+        if(!art||!size){skipped++;return;}
+        if(e.soh.find(r=>r.art===art&&r.size===size)){skipped++;return;}
+        e.soh.push({desc:getVal(row,'desc'),art,size,sku:getVal(row,'sku'),qty:getNum(row,'qty')});
+        added++;
+      } else if(csvImportType==='penjualan'){
+        const e=getE(); if(!e) return;
+        const art=getVal(row,'art'), size=getVal(row,'size');
+        if(!art||!size){skipped++;return;}
+        e.penjualan.push({desc:getVal(row,'desc'),art,size,qty:getNum(row,'qty'),price:getNum(row,'price'),promo:getVal(row,'promo')});
+        added++;
+      } else if(csvImportType==='penerimaan'){
+        const e=getE(); if(!e) return;
+        const art=getVal(row,'art'), size=getVal(row,'size');
+        if(!art||!size){skipped++;return;}
+        e.penerimaan.push({desc:getVal(row,'desc'),art,size,qty:getNum(row,'qty'),doNum:getVal(row,'doNum')});
+        added++;
+      } else if(csvImportType==='retur'){
+        const e=getE(); if(!e) return;
+        const art=getVal(row,'art'), size=getVal(row,'size');
+        if(!art||!size){skipped++;return;}
+        e.retur.push({desc:getVal(row,'desc'),art,size,qty:getNum(row,'qty'),reason:getVal(row,'reason')||'Lainnya',cond:getVal(row,'cond')||'Baik'});
+        added++;
+      } else if(csvImportType==='toko'){
+        const bid=getVal(row,'bid'), name=getVal(row,'name');
+        if(!bid||!name){skipped++;return;}
+        if(stores.find(s=>s.bid===bid)){skipped++;return;}
+        stores.push({bid,name,city:getVal(row,'city'),region:getVal(row,'region'),vid:getVal(row,'vid'),discount:getVal(row,'discount'),partner:getVal(row,'partner')});
+        added++;
+      } else if(csvImportType==='artikel'){
+        const art=getVal(row,'art'), ukuran=getVal(row,'ukuran');
+        if(!art||!ukuran){skipped++;return;}
+        if(artikelList.find(a=>a.art===art&&a.ukuran===ukuran)){skipped++;return;}
+        artikelList.push({art,ukuran,itemid:getVal(row,'itemid'),nama:getVal(row,'nama'),stok:getNum(row,'stok')});
+        added++;
+      }
+    } catch(err){ skipped++; }
+  });
+
+  saveToStorage();
+  saveAlokasiStorage();
+
+  // Refresh relevant tables
+  if(['soh','penjualan','penerimaan','retur'].includes(csvImportType)){
+    renderAll();
+    const notifId=`notif-${csvImportType}`;
+    showNotif(notifId,`✓ ${added} baris berhasil diimport${skipped>0?`, ${skipped} dilewati`:'.'}`,'success');
+  } else if(csvImportType==='toko'){
+    renderStorePage(); updateStoreDropdowns();
+    showNotif('notif-store',`✓ ${added} toko berhasil diimport${skipped>0?`, ${skipped} dilewati`:'.'}`, 'success');
+  } else if(csvImportType==='artikel'){
+    renderArtTable(); updateArtDropdowns(); renderAlokasiPage();
+    showNotif('notif-art',`✓ ${added} artikel berhasil diimport${skipped>0?`, ${skipped} dilewati`:'.'}`, 'success');
+  }
+
+  closeCsvModal();
+}
+
 let importRows = [];
 
 function triggerImport(){
