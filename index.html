@@ -269,6 +269,10 @@ tr:hover td{background:#f8fafc}
       <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
       Kelola Toko
     </button>
+    <button class="nav-item" onclick="goPage('alokasi',this)">
+      <svg class="nav-icon" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+      Alokasi Stok
+    </button>
   </div>
 
   <div class="sidebar-footer">
@@ -686,6 +690,7 @@ tr:hover td{background:#f8fafc}
           <div class="form-group"><label>Wilayah</label><input id="ns-region" placeholder="Jawa Barat"></div>
         </div>
         <button class="btn btn-primary btn-sm" onclick="addStore()">+ Tambah Toko</button>
+        <button class="btn btn-sm" onclick="cancelEdit()" id="cancel-edit-btn" style="display:none">Batal Edit</button>
       </div>
       <div class="panel">
         <div class="panel-header">
@@ -699,66 +704,139 @@ tr:hover td{background:#f8fafc}
       </div>
     </div>
 
+    <!-- ═══ ALOKASI STOK ═══ -->
+    <div class="page" id="page-alokasi">
+
+      <!-- Metrics -->
+      <div class="metrics">
+        <div class="metric accent-blue"><div class="metric-label">Total Artikel</div><div class="metric-val" id="al-total-art">0</div><div class="metric-sub neu">artikel terdaftar</div></div>
+        <div class="metric accent-green"><div class="metric-label">Total Stok Tersedia</div><div class="metric-val" id="al-total-stok">0</div><div class="metric-sub neu">unit siap distribusi</div></div>
+        <div class="metric accent-amber"><div class="metric-label">Toko Aktif</div><div class="metric-val" id="al-total-toko">0</div><div class="metric-sub neu">toko terdaftar</div></div>
+        <div class="metric accent-red"><div class="metric-label">Belum Dialokasi</div><div class="metric-val" id="al-sisa">0</div><div class="metric-sub neu">unit sisa</div></div>
+      </div>
+
+      <!-- Bobot -->
+      <div class="panel">
+        <div class="panel-header">
+          <div><div class="panel-title">⚙️ Bobot Faktor</div><div class="panel-sub">Total harus = 100%</div></div>
+          <span id="bobot-status" class="badge b-ok">✓ Total = 100%</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px">
+          <div class="form-group">
+            <label>Histori Penjualan (%)</label>
+            <input type="number" id="w-hist" value="40" min="0" max="100" oninput="updateBobotStatus()">
+            <span style="font-size:11px;color:var(--text2)">Makin laris → dapat lebih</span>
+          </div>
+          <div class="form-group">
+            <label>SOH Saat Ini (%)</label>
+            <input type="number" id="w-soh" value="30" min="0" max="100" oninput="updateBobotStatus()">
+            <span style="font-size:11px;color:var(--text2)">Makin rendah → diprioritaskan</span>
+          </div>
+          <div class="form-group">
+            <label>Kapasitas Toko (%)</label>
+            <input type="number" id="w-kap" value="20" min="0" max="100" oninput="updateBobotStatus()">
+            <span style="font-size:11px;color:var(--text2)">Makin besar → dapat lebih</span>
+          </div>
+          <div class="form-group">
+            <label>% Target (%)</label>
+            <input type="number" id="w-pct" value="10" min="0" max="100" oninput="updateBobotStatus()">
+            <span style="font-size:11px;color:var(--text2)">Makin jauh target → diprioritaskan</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="row2">
+        <!-- Tambah Artikel -->
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:12px">📦 Daftar Artikel & Stok Tersedia</div>
+          <div id="notif-art" class="notif"></div>
+          <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-bottom:10px">
+            <div class="form-group"><label>Artikel</label><input id="al-art" placeholder="B1000"></div>
+            <div class="form-group"><label>Ukuran</label><input id="al-ukuran" placeholder="L"></div>
+            <div class="form-group"><label>Item ID</label><input id="al-itemid" placeholder="78309309"></div>
+            <div class="form-group"><label>Nama Produk</label><input id="al-nama" placeholder="LOIS DENIM..."></div>
+            <div class="form-group"><label>Stok Tersedia</label><input id="al-stok" type="number" min="0" placeholder="0"></div>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="addArtikel()">+ Tambah Artikel</button>
+          <div class="divider"></div>
+          <div class="tbl-wrap" style="max-height:250px;overflow-y:auto">
+            <table><thead><tr><th>Artikel</th><th>Ukuran</th><th>Item ID</th><th>Nama Produk</th><th>Stok</th><th></th></tr></thead>
+            <tbody id="art-table"></tbody></table>
+          </div>
+        </div>
+
+        <!-- SOH per toko per artikel -->
+        <div class="panel">
+          <div class="panel-title" style="margin-bottom:8px">🏪 SOH per Toko (Artikel Tertentu)</div>
+          <div class="panel-sub" style="margin-bottom:12px">Pilih artikel lalu isi SOH spesifik artikel tersebut di setiap toko</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px">
+            <select id="soh-art-sel" onchange="loadSohToko()" style="flex:1;padding:7px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text)">
+              <option value="">-- Pilih Artikel --</option>
+            </select>
+            <button class="btn btn-sm" onclick="autoFillSoh()">Auto-isi dari Data Toko</button>
+          </div>
+          <div class="tbl-wrap" style="max-height:280px;overflow-y:auto">
+            <table><thead><tr><th>Toko</th><th>Kota</th><th>SOH Artikel Ini</th></tr></thead>
+            <tbody id="soh-toko-table"></tbody>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hasil Alokasi -->
+      <div class="panel">
+        <div class="panel-header">
+          <div><div class="panel-title">📊 Hasil Rekomendasi Alokasi</div><div class="panel-sub">Klik artikel untuk lihat detail alokasi per toko</div></div>
+          <div style="display:flex;gap:8px">
+            <select id="al-art-sel" onchange="renderAlokasiDetail()" style="padding:6px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:12px;background:var(--surface);color:var(--text)">
+              <option value="">-- Pilih Artikel --</option>
+            </select>
+            <button class="btn btn-primary btn-sm" onclick="hitungAlokasi()">🔄 Hitung Ulang</button>
+            <button class="btn btn-sm" onclick="exportTable('alokasi-tbl')">Export CSV</button>
+          </div>
+        </div>
+        <div id="notif-alokasi" class="notif"></div>
+        <div class="tbl-wrap">
+          <table id="alokasi-tbl">
+            <thead><tr>
+              <th>Toko</th><th>Kota</th>
+              <th>Skor Histori</th><th>Skor SOH</th><th>Skor Kapasitas</th><th>Skor Target</th>
+              <th>Skor Akhir</th><th>Alokasi (unit)</th><th>Prioritas</th>
+            </tr></thead>
+            <tbody id="alokasi-detail-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Ringkasan semua artikel -->
+      <div class="panel">
+        <div class="panel-header"><div class="panel-title">📋 Ringkasan Semua Artikel × Toko</div><button class="btn btn-sm" onclick="exportTable('ringkasan-alokasi-tbl')">Export CSV</button></div>
+        <div class="tbl-wrap" style="overflow-x:auto">
+          <table id="ringkasan-alokasi-tbl">
+            <thead><tr id="ring-head"></tr></thead>
+            <tbody id="ring-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
   </div>
 </div>
 </div>
 
 <script>
 // ── DATA ────────────────────────────────────────────────
-let stores = [
-  {vid:'555',bid:'BRD-001',name:'Metmal Bekasi',city:'Bekasi',region:'Jawa Barat'},
-  {vid:'556',bid:'BRD-002',name:'Metmal Jakarta',city:'Jakarta',region:'DKI Jakarta'},
-  {vid:'557',bid:'BRD-003',name:'Metmal Surabaya',city:'Surabaya',region:'Jawa Timur'},
-  {vid:'558',bid:'BRD-004',name:'Metmal Bandung',city:'Bandung',region:'Jawa Barat'},
-  {vid:'559',bid:'BRD-005',name:'Metmal Medan',city:'Medan',region:'Sumatera Utara'},
-  {vid:'560',bid:'BRD-006',name:'Metmal Semarang',city:'Semarang',region:'Jawa Tengah'},
-];
+let stores = [];
 
-const storeStats = [
-  {vid:'555',units:187,rev:72500000,target:120000000},
-  {vid:'556',units:214,rev:89200000,target:130000000},
-  {vid:'557',units:98, rev:38400000,target:95000000},
-  {vid:'558',units:156,rev:61800000,target:100000000},
-  {vid:'559',units:112,rev:44100000,target:90000000},
-  {vid:'560',units:89, rev:34700000,target:80000000},
-];
+const storeStats = [];
 
-const stockData = [
-  {vid:'555',store:'Metmal Bekasi',prod:'LOIS DENIM PANTS CFL',art:'CFL077D1',size:'30',open:10,sold:8,recv:0,ret:0},
-  {vid:'555',store:'Metmal Bekasi',prod:'LOIS JEANS FASHION:M',art:'LOIS-639500',size:'M',open:5,sold:6,recv:2,ret:1},
-  {vid:'555',store:'Metmal Bekasi',prod:'LOIS DENIM SLIM FIT',art:'SLS047D',size:'32',open:15,sold:4,recv:0,ret:0},
-  {vid:'556',store:'Metmal Jakarta',prod:'LOIS CHINOS PANTS',art:'SLS485BK',size:'L',open:8,sold:9,recv:0,ret:0},
-  {vid:'556',store:'Metmal Jakarta',prod:'LOIS DENIM SLIM FIT',art:'SLS116A',size:'30',open:12,sold:3,recv:5,ret:0},
-  {vid:'557',store:'Metmal Surabaya',prod:'LOIS DENIM PANTS CFL',art:'CFL077D1',size:'34',open:12,sold:3,recv:5,ret:0},
-  {vid:'557',store:'Metmal Surabaya',prod:'LOIS SHIRT KLL511',art:'KLL511',size:'M',open:6,sold:6,recv:0,ret:0},
-  {vid:'558',store:'Metmal Bandung',prod:'LOIS CASUAL TSHIRT',art:'KSL2466',size:'L',open:20,sold:5,recv:0,ret:0},
-  {vid:'558',store:'Metmal Bandung',prod:'LOIS DENIM SLIM FIT',art:'SLS116A',size:'30',open:4,sold:5,recv:0,ret:0},
-  {vid:'559',store:'Metmal Medan',prod:'LOIS JEANS FASHION:M',art:'LOIS-639500',size:'L',open:8,sold:2,recv:3,ret:0},
-];
+const stockData = [];
 
 // Promo data dikelola di array promos (lihat fungsi addPromo)
 
-const topProducts = [
-  {name:'LOIS DENIM PANTS CFL',art:'CFL077D1',cat:'Denim',units:342},
-  {name:'LOIS JEANS FASHION:M',art:'LOIS-639500',cat:'Jeans',units:287},
-  {name:'LOIS DENIM SLIM FIT',art:'SLS047D',cat:'Denim',units:241},
-  {name:'LOIS CHINOS PANTS',art:'SLS485BK',cat:'Chinos',units:198},
-  {name:'LOIS CASUAL TSHIRT',art:'KSL2466',cat:'T-Shirt',units:176},
-  {name:'LOIS SHIRT KLL511',art:'KLL511',cat:'Kemeja',units:154},
-  {name:'LOIS JACKET MJF177',art:'MJF177',cat:'Jaket',units:132},
-  {name:'LOIS DENIM SLIM:M',art:'SLS116A',cat:'Denim',units:118},
-  {name:'LOIS CHINOS STRETCH',art:'SLS113B',cat:'Chinos',units:97},
-  {name:'LOIS KOKO SHIRT',art:'KLS612',cat:'Kemeja',units:84},
-];
+const topProducts = [];
 
-const alertsData = [
-  {level:'Kritis',cat:'Stok',msg:'23 SKU stok minus di 8 toko berbeda',store:'Multi-toko',detail:'Butuh restock segera',time:'2 mnt lalu'},
-  {level:'Kritis',cat:'Stok',msg:'LOIS JEANS 639500 ukuran 30 habis di 5 toko',store:'5 toko',detail:'Stok = 0',time:'3 jam lalu'},
-  {level:'Kritis',cat:'Target',msg:'3 toko di bawah 50% target bulan ini',store:'Sby, Smg, Mks',detail:'Perlu tindakan segera',time:'1 jam lalu'},
-  {level:'Sedang',cat:'Target',msg:'Metmal Surabaya baru 41% target',store:'Metmal Surabaya',detail:'Target Rp 95 Jt, Aktual Rp 38 Jt',time:'1 jam lalu'},
-  {level:'Sedang',cat:'Input',msg:'53 toko belum input data hari ini',store:'Multi-toko',detail:'Batas input pukul 22.00',time:'Sejak pagi'},
-  {level:'Info',cat:'Pengiriman',msg:'SJ-2024-089 tiba di 12 toko',store:'Multi-toko',detail:'Total 480 unit diterima',time:'5 jam lalu'},
-];
+const alertsData = [];
 
 // ── LOCALSTORAGE ────────────────────────────────────────
 const LS_STORES   = 'lois_stores';
@@ -820,9 +898,9 @@ function goPage(p,el){
   document.getElementById('page-'+p).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active'));
   if(el) el.classList.add('active');
-  const titles={dashboard:'Dashboard',sales:'Penjualan',stock:'Monitor Stok',promo:'Promosi',entry:'Input Harian',target:'Target vs Aktual',topsku:'Produk Terlaris',alerts:'Peringatan',stores:'Kelola Toko'};
+  const titles={dashboard:'Dashboard',sales:'Penjualan',stock:'Monitor Stok',promo:'Promosi',entry:'Input Harian',target:'Target vs Aktual',topsku:'Produk Terlaris',alerts:'Peringatan',stores:'Kelola Toko',alokasi:'Alokasi Stok'};
   document.getElementById('page-title').textContent=titles[p]||p;
-  const fns={dashboard:renderDashboard,sales:renderSalesPage,stock:renderStockPage,promo:renderPromoPage,orders:()=>{},target:renderTargetPage,topsku:renderTopSku,alerts:renderAlertsPage,stores:renderStorePage};
+  const fns={dashboard:renderDashboard,sales:renderSalesPage,stock:renderStockPage,promo:renderPromoPage,orders:()=>{},target:renderTargetPage,topsku:renderTopSku,alerts:renderAlertsPage,stores:renderStorePage,alokasi:renderAlokasiPage};
   if(fns[p]) fns[p]();
 }
 
@@ -840,26 +918,28 @@ function switchSec(s,el){
 // ── DASHBOARD ──────────────────────────────────────────
 function renderDashboard(){
   const tb=document.getElementById('dash-stores');
+  if(!stores.length){
+    tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada toko. Silakan tambahkan toko di menu Kelola Toko.</td></tr>';
+    document.getElementById('chart-weekly').innerHTML='<div class="empty" style="width:100%;align-self:center">Belum ada data penjualan.</div>';
+    return;
+  }
   tb.innerHTML=stores.map(s=>{
-    const stat=storeStats.find(x=>x.vid===s.vid)||{units:0,rev:0,target:100000000};
-    const pct=Math.round(stat.rev/stat.target*100);
+    const stat=storeStats.find(x=>x.vid===s.vid)||{units:0,rev:0,target:0};
+    const pct=stat.target>0?Math.round(stat.rev/stat.target*100):0;
     const bc=barColor(pct);
-    const badge=pct>=80?'<span class="badge b-ok">On Track</span>':pct>=50?'<span class="badge b-warn">Perlu Perhatian</span>':'<span class="badge b-danger">Di Bawah Target</span>';
-    return `<tr><td><b>${s.name}</b></td><td>${s.city}</td><td class="mono">${stat.units.toLocaleString('id-ID')}</td><td class="mono">${fmtM(stat.rev)}</td><td class="mono">${fmtM(stat.target)}</td>
+    const badge=pct>=80?'<span class="badge b-ok">On Track</span>':pct>=50?'<span class="badge b-warn">Perlu Perhatian</span>':'<span class="badge b-gray">Belum Ada Data</span>';
+    return `<tr><td><b>${s.name}</b></td><td>${s.city}</td><td class="mono">${stat.units.toLocaleString('id-ID')}</td><td class="mono">${fmtM(stat.rev)}</td><td class="mono">${stat.target?fmtM(stat.target):'-'}</td>
     <td style="min-width:140px"><div style="display:flex;align-items:center;gap:8px"><div style="flex:1"><div class="bar-wrap"><div class="bar-fill ${bc}" style="width:${Math.min(pct,100)}%"></div></div></div><span class="mono" style="font-size:11px">${pct}%</span></div></td>
     <td>${badge}</td></tr>`;
   }).join('');
-
   const days=['Sen','Sel','Rab','Kam','Jum','Sab','Min'];
-  const actuals=[32,41,38,45,52,68,48];
-  const targets=[40,40,40,40,40,40,40];
-  const maxV=Math.max(...actuals,...targets);
+  const actuals=[0,0,0,0,0,0,0];
+  const maxV=1;
   document.getElementById('chart-weekly').innerHTML=days.map((d,i)=>`
     <div class="bar-col">
       <div class="c-val">${actuals[i]}</div>
       <div style="display:flex;gap:2px;align-items:flex-end;flex:1;width:100%">
-        <div class="bar-rect primary" style="flex:1;height:${Math.round(actuals[i]/maxV*120)}px"></div>
-        <div class="bar-rect secondary" style="flex:1;height:${Math.round(targets[i]/maxV*120)}px"></div>
+        <div class="bar-rect primary" style="flex:1;height:4px"></div>
       </div>
       <div class="c-lbl">${d}</div>
     </div>`).join('');
@@ -868,14 +948,10 @@ function renderDashboard(){
 // ── SALES ──────────────────────────────────────────────
 function renderSalesPage(){
   updateStoreDropdowns();
-  const cats=['Denim & Jeans','Chinos','Kemeja','T-Shirt','Jaket','Aksesoris'];
-  document.getElementById('sales-table').innerHTML=stores.map(s=>{
-    const stat=storeStats.find(x=>x.vid===s.vid)||{units:0,rev:0};
-    const trend=stat.units>150?'↑':'↓';
-    const pct=Math.round(Math.random()*15+3);
-    const tc=trend==='↑'?'var(--accent3)':'var(--danger)';
-    const cat=cats[Math.floor(Math.random()*cats.length)];
-    return `<tr><td><b>${s.name}</b></td><td>${s.city}</td><td><span class="badge b-gray">${cat}</span></td><td class="mono">${stat.units.toLocaleString('id-ID')}</td><td class="mono">${fmtM(stat.rev)}</td><td class="mono">${fmtRp(stat.units>0?Math.round(stat.rev/stat.units):0)}</td><td style="color:${tc};font-weight:600">${trend} ${pct}%</td></tr>`;
+  const tb=document.getElementById('sales-table');
+  if(!stores.length){tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada toko terdaftar.</td></tr>';return;}
+  tb.innerHTML=stores.map(s=>{
+    return `<tr><td><b>${s.name}</b></td><td>${s.city}</td><td><span class="badge b-gray">-</span></td><td class="mono">0</td><td class="mono">Rp 0</td><td class="mono">-</td><td style="color:var(--text2)">-</td></tr>`;
   }).join('');
 }
 
@@ -901,12 +977,7 @@ function renderStockPage(){
   }).join('');
 }
 
-const promos = [
-  {name:'Ramadan Sale 2026',type:'Diskon %',value:'30%',scope:'Semua Toko',stores:'',articles:'',start:'2026-03-01',end:'2026-03-31',desc:'Diskon 30% semua produk selama Ramadan'},
-  {name:'Flash Sale Denim',type:'Flash Sale',value:'50%',scope:'Artikel Tertentu',stores:'',articles:'CFL077D1, SLS047D',start:'2026-04-15',end:'2026-04-15',desc:'Flash sale khusus produk denim'},
-  {name:'BOGO Kaos',type:'Buy 1 Get 1',value:'Buy 1 Get 1',scope:'Toko Tertentu',stores:'555, 556',articles:'KSL2466',start:'2026-04-01',end:'2026-04-30',desc:'Beli 1 gratis 1 untuk kaos di toko tertentu'},
-  {name:'Cashback Chinos',type:'Cashback',value:'Rp 50.000',scope:'Kombinasi',stores:'557, 558',articles:'SLS485BK',start:'2026-04-20',end:'2026-05-20',desc:'Cashback Rp 50.000 untuk pembelian chinos'},
-];
+const promos = [];
 
 function promoStatus(p){
   const now=new Date(); const s=new Date(p.start); const e=new Date(p.end);
@@ -1018,9 +1089,17 @@ function renderTargetPage(){
 // ── TOP SKU ──────────────────────────────────────────────
 function renderTopSku(){
   updateStoreDropdowns();
+  const tp=document.getElementById('top-products');
+  const tc=document.getElementById('top-cats');
+  const ts=document.getElementById('top-sizes');
+  if(!topProducts.length){
+    tp.innerHTML='<div class="empty">Belum ada data produk terlaris.</div>';
+    tc.innerHTML=''; ts.innerHTML='';
+    return;
+  }
   const max=topProducts[0].units;
   const rankCls=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
-  document.getElementById('top-products').innerHTML=topProducts.map((p,i)=>`
+  tp.innerHTML=topProducts.map((p,i)=>`
     <div class="top-item">
       <div class="top-rank ${rankCls(i)}">${i+1}</div>
       <div class="top-info">
@@ -1030,30 +1109,16 @@ function renderTopSku(){
       </div>
       <div class="top-qty">${p.units}</div>
     </div>`).join('');
-
-  const cats=[{n:'Denim & Jeans',u:701},{n:'Chinos',u:295},{n:'Kemeja',u:238},{n:'T-Shirt',u:176},{n:'Jaket',u:132}];
-  const cmax=cats[0].u;
-  document.getElementById('top-cats').innerHTML=cats.map((c,i)=>`
-    <div class="top-item">
-      <div class="top-rank ${rankCls(i)}">${i+1}</div>
-      <div class="top-info"><div class="top-name">${c.n}</div><div class="top-bar"><div class="top-bar-fill" style="width:${Math.round(c.u/cmax*100)}%"></div></div></div>
-      <div class="top-qty">${c.u}</div>
-    </div>`).join('');
-
-  const sizes=[{s:'32',u:312},{s:'30',u:287},{s:'M',u:241},{s:'L',u:198},{s:'34',u:154}];
-  const smax=sizes[0].u;
-  document.getElementById('top-sizes').innerHTML=sizes.map((s,i)=>`
-    <div class="top-item">
-      <div class="top-rank ${rankCls(i)}">${i+1}</div>
-      <div class="top-info"><div class="top-name">Ukuran ${s.s}</div><div class="top-bar"><div class="top-bar-fill" style="width:${Math.round(s.u/smax*100)}%"></div></div></div>
-      <div class="top-qty">${s.u}</div>
-    </div>`).join('');
+  tc.innerHTML='<div class="empty">Belum ada data kategori.</div>';
+  ts.innerHTML='<div class="empty">Belum ada data ukuran.</div>';
 }
 
 // ── ALERTS ──────────────────────────────────────────────
 function renderAlertsPage(){
+  const tb=document.getElementById('alerts-table');
+  if(!alertsData.length){tb.innerHTML='<tr><td colspan="6" class="empty">Tidak ada peringatan saat ini.</td></tr>';return;}
   const lvl={Kritis:'b-danger',Sedang:'b-warn',Info:'b-info'};
-  document.getElementById('alerts-table').innerHTML=alertsData.map(a=>`<tr>
+  tb.innerHTML=alertsData.map(a=>`<tr>
     <td><span class="badge ${lvl[a.level]}">${a.level}</span></td>
     <td><span class="badge b-gray">${a.cat}</span></td>
     <td style="max-width:250px">${a.msg}</td>
@@ -1064,6 +1129,55 @@ function renderAlertsPage(){
 }
 
 // ── STORES ──────────────────────────────────────────────
+function editStore(vid){
+  const s=stores.find(x=>x.vid===vid);
+  if(!s) return;
+  // Fill form with existing data
+  document.getElementById('ns-vid').value=s.vid;
+  document.getElementById('ns-bid').value=s.bid;
+  document.getElementById('ns-name').value=s.name;
+  document.getElementById('ns-city').value=s.city||'';
+  document.getElementById('ns-region').value=s.region||'';
+  // Change button to Update mode
+  const btn=document.querySelector('#page-stores .panel button.btn-primary');
+  if(btn){
+    btn.textContent='✓ Simpan Perubahan';
+    btn.onclick=()=>updateStore(vid);
+  }
+  // Scroll to form
+  document.querySelector('#page-stores .panel').scrollIntoView({behavior:'smooth'});
+  showNotif('notif-store',`Mode Edit: ${s.name} — ubah data lalu klik Simpan Perubahan.`,'warn');
+}
+
+function updateStore(oldVid){
+  const vid=document.getElementById('ns-vid').value.trim();
+  const bid=document.getElementById('ns-bid').value.trim();
+  const name=document.getElementById('ns-name').value.trim();
+  const city=document.getElementById('ns-city').value.trim();
+  const region=document.getElementById('ns-region').value.trim();
+  if(!vid||!bid||!name){showNotif('notif-store','ID Vendor, ID Brand, dan Nama Toko wajib diisi.','error');return;}
+  // Check if new vid conflicts with another store
+  if(vid!==oldVid && stores.find(s=>s.vid===vid)){showNotif('notif-store','ID Vendor sudah digunakan toko lain.','error');return;}
+  const idx=stores.findIndex(s=>s.vid===oldVid);
+  if(idx===-1) return;
+  stores[idx]={vid,bid,name,city,region};
+  ['ns-vid','ns-bid','ns-name','ns-city','ns-region'].forEach(id=>document.getElementById(id).value='');
+  // Reset button back to Add mode
+  const btn=document.querySelector('#page-stores .panel button.btn-primary');
+  if(btn){ btn.textContent='+ Tambah Toko'; btn.onclick=addStore; }
+  showNotif('notif-store',`Toko "${name}" berhasil diperbarui!`,'success');
+  saveToStorage();
+  renderStorePage();
+  updateStoreDropdowns();
+}
+
+function cancelEdit(){
+  ['ns-vid','ns-bid','ns-name','ns-city','ns-region'].forEach(id=>document.getElementById(id).value='');
+  const btn=document.querySelector('#page-stores .panel button.btn-primary');
+  if(btn){ btn.textContent='+ Tambah Toko'; btn.onclick=addStore; }
+  document.getElementById('notif-store').className='notif';
+}
+
 function addStore(){
   const vid=document.getElementById('ns-vid').value.trim();
   const bid=document.getElementById('ns-bid').value.trim();
@@ -1093,11 +1207,27 @@ function renderStorePage(){
   const filtered=stores.filter(s=>s.name.toLowerCase().includes(q)||s.vid.toLowerCase().includes(q)||s.city.toLowerCase().includes(q));
   document.getElementById('store-count').textContent=stores.length;
   const tb=document.getElementById('store-table');
+  if(!stores.length){
+    tb.innerHTML='<tr><td colspan="7" class="empty">Belum ada toko. Tambahkan toko pertama Anda di atas.</td></tr>';
+    return;
+  }
   if(!filtered.length){tb.innerHTML='<tr><td colspan="7" class="empty">Tidak ada toko yang cocok.</td></tr>';return;}
   tb.innerHTML=filtered.map(s=>{
-    const skus=stockData.filter(r=>r.vid===s.vid).length;
-    return `<tr><td class="mono">${s.vid}</td><td class="mono">${s.bid}</td><td><b>${s.name}</b></td><td>${s.city||'-'}</td><td>${s.region||'-'}</td><td>${skus}</td>
-    <td><button class="btn btn-danger btn-sm" onclick="removeStore('${s.vid}')">Hapus</button></td></tr>`;
+    const skus=Object.keys(entryData).filter(k=>k.startsWith(s.vid+'|')).reduce((a,k)=>a+(entryData[k].soh||[]).length,0);
+    return `<tr>
+      <td class="mono">${s.vid}</td>
+      <td class="mono">${s.bid}</td>
+      <td><b>${s.name}</b></td>
+      <td>${s.city||'-'}</td>
+      <td>${s.region||'-'}</td>
+      <td>${skus}</td>
+      <td>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" onclick="editStore('${s.vid}')" style="color:var(--accent)">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="removeStore('${s.vid}')">Hapus</button>
+        </div>
+      </td>
+    </tr>`;
   }).join('');
 }
 
@@ -1450,15 +1580,301 @@ function exportTable(id){
   a.click();
 }
 
-// ── INIT ────────────────────────────────────────────────
+// ── ALOKASI STOK ────────────────────────────────────────
+let artikelList = [];   // {art, ukuran, itemid, nama, stok}
+let sohData     = {};   // key: 'art_ukuran', value: {vid: soh_qty}
+let alokasiResult = {}; // key: 'art_ukuran', value: [{vid,name,city,skor,alokasi}]
+
+const LS_ARTIKEL  = 'lois_artikel';
+const LS_SOH_DATA = 'lois_soh_data';
+const LS_ALOKASI  = 'lois_alokasi';
+
+function saveAlokasiStorage(){
+  try{
+    localStorage.setItem(LS_ARTIKEL,  JSON.stringify(artikelList));
+    localStorage.setItem(LS_SOH_DATA, JSON.stringify(sohData));
+    localStorage.setItem(LS_ALOKASI,  JSON.stringify(alokasiResult));
+  }catch(e){}
+}
+function loadAlokasiStorage(){
+  try{
+    const a=localStorage.getItem(LS_ARTIKEL);
+    const s=localStorage.getItem(LS_SOH_DATA);
+    const r=localStorage.getItem(LS_ALOKASI);
+    if(a){ const p=JSON.parse(a); if(p.length) artikelList.splice(0,artikelList.length,...p); }
+    if(s) Object.assign(sohData,JSON.parse(s));
+    if(r) Object.assign(alokasiResult,JSON.parse(r));
+  }catch(e){}
+}
+
+function artKey(art,ukuran){ return `${art}_${ukuran}`; }
+
+function addArtikel(){
+  const art    = document.getElementById('al-art').value.trim();
+  const ukuran = document.getElementById('al-ukuran').value.trim();
+  const itemid = document.getElementById('al-itemid').value.trim();
+  const nama   = document.getElementById('al-nama').value.trim();
+  const stok   = parseInt(document.getElementById('al-stok').value)||0;
+  if(!art||!ukuran){showNotif('notif-art','Artikel dan Ukuran wajib diisi.','error');return;}
+  if(artikelList.find(a=>a.art===art&&a.ukuran===ukuran)){showNotif('notif-art','Artikel + Ukuran sudah ada.','warn');return;}
+  artikelList.push({art,ukuran,itemid,nama,stok});
+  ['al-art','al-ukuran','al-itemid','al-nama','al-stok'].forEach(id=>document.getElementById(id).value='');
+  showNotif('notif-art','Artikel berhasil ditambahkan!','success');
+  saveAlokasiStorage();
+  renderArtTable();
+  updateArtDropdowns();
+  renderAlokasiPage();
+}
+
+function removeArtikel(idx){
+  if(!confirm('Hapus artikel ini?')) return;
+  const a=artikelList[idx];
+  delete sohData[artKey(a.art,a.ukuran)];
+  delete alokasiResult[artKey(a.art,a.ukuran)];
+  artikelList.splice(idx,1);
+  saveAlokasiStorage();
+  renderArtTable();
+  updateArtDropdowns();
+  renderAlokasiPage();
+}
+
+function renderArtTable(){
+  const tb=document.getElementById('art-table');
+  if(!artikelList.length){
+    tb.innerHTML='<tr><td colspan="6" class="empty">Belum ada artikel. Tambahkan di atas.</td></tr>';
+    return;
+  }
+  tb.innerHTML=artikelList.map((a,i)=>`<tr>
+    <td class="mono">${a.art}</td>
+    <td><span class="badge b-gray">${a.ukuran}</span></td>
+    <td class="mono" style="font-size:11px">${a.itemid||'-'}</td>
+    <td>${a.nama||'-'}</td>
+    <td class="mono" style="font-weight:600">${a.stok.toLocaleString('id-ID')}</td>
+    <td><button class="btn btn-danger btn-sm" onclick="removeArtikel(${i})">Hapus</button></td>
+  </tr>`).join('');
+}
+
+function updateArtDropdowns(){
+  const opts='<option value="">-- Pilih Artikel --</option>'+
+    artikelList.map(a=>`<option value="${artKey(a.art,a.ukuran)}">${a.art} — ${a.ukuran} (${a.nama||''})</option>`).join('');
+  ['soh-art-sel','al-art-sel'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.innerHTML=opts;
+  });
+}
+
+function loadSohToko(){
+  const key=document.getElementById('soh-art-sel').value;
+  const tb=document.getElementById('soh-toko-table');
+  if(!key||!stores.length){
+    tb.innerHTML='<tr><td colspan="3" class="empty">Pilih artikel dan pastikan toko sudah terdaftar.</td></tr>';
+    return;
+  }
+  if(!sohData[key]) sohData[key]={};
+  tb.innerHTML=stores.map((s,i)=>`<tr>
+    <td>${s.name}</td>
+    <td style="color:var(--text2)">${s.city||'-'}</td>
+    <td><input type="number" min="0" value="${sohData[key][s.vid]||0}"
+      style="width:80px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;text-align:right"
+      onchange="updateSoh('${key}','${s.vid}',this.value)"></td>
+  </tr>`).join('');
+}
+
+function updateSoh(key,vid,val){
+  if(!sohData[key]) sohData[key]={};
+  sohData[key][vid]=parseInt(val)||0;
+  saveAlokasiStorage();
+}
+
+function autoFillSoh(){
+  const key=document.getElementById('soh-art-sel').value;
+  if(!key){alert('Pilih artikel terlebih dahulu.');return;}
+  if(!sohData[key]) sohData[key]={};
+  // Use general SOH from entryData if available, else 0
+  stores.forEach(s=>{
+    const storeEntries=Object.entries(entryData).filter(([k])=>k.startsWith(s.vid+'|'));
+    let totalSoh=0;
+    storeEntries.forEach(([,e])=>{
+      const parts=key.split('_');
+      const art=parts[0]; const ukuran=parts.slice(1).join('_');
+      const row=e.soh.find(r=>r.art===art&&r.size===ukuran);
+      if(row) totalSoh+=row.qty;
+    });
+    sohData[key][s.vid]=totalSoh;
+  });
+  saveAlokasiStorage();
+  loadSohToko();
+  showNotif('notif-art','SOH diisi otomatis dari data Input Harian.','success');
+}
+
+// ── SCORING ──────────────────────────────────────────────
+function minMaxScore(val, arr, invert=false){
+  const nums=arr.filter(x=>x!==null&&x!==undefined&&!isNaN(x));
+  if(!nums.length) return 5;
+  const mn=Math.min(...nums), mx=Math.max(...nums);
+  if(mx===mn) return 5;
+  const norm=invert ? (mx-val)/(mx-mn) : (val-mn)/(mx-mn);
+  return Math.round((1+9*norm)*10)/10;
+}
+
+function hitungAlokasi(){
+  if(!stores.length){showNotif('notif-alokasi','Tambahkan toko di Kelola Toko terlebih dahulu.','error');return;}
+  if(!artikelList.length){showNotif('notif-alokasi','Tambahkan artikel terlebih dahulu.','error');return;}
+
+  const wHist=parseInt(document.getElementById('w-hist').value)||40;
+  const wSoh =parseInt(document.getElementById('w-soh').value)||30;
+  const wKap =parseInt(document.getElementById('w-kap').value)||20;
+  const wPct =parseInt(document.getElementById('w-pct').value)||10;
+
+  // Get store data from entryData (histori, soh umum, kapasitas, pct target)
+  // For demo: use stores array with default values if no data
+  const storeDataMap={};
+  stores.forEach(s=>{
+    const allEntries=Object.entries(entryData).filter(([k])=>k.startsWith(s.vid+'|'));
+    const totalSold=allEntries.reduce((a,[,e])=>a+e.penjualan.reduce((b,p)=>b+p.qty,0),0);
+    const avgSold=allEntries.length>0?totalSold/allEntries.length:0;
+    storeDataMap[s.vid]={
+      hist: avgSold,
+      kap:  parseInt(s.kapasitas)||100,
+      pct:  parseFloat(s.targetPct)||0.5,
+    };
+  });
+
+  // Score each artikel
+  artikelList.forEach(a=>{
+    const key=artKey(a.art,a.ukuran);
+    const sohMap=sohData[key]||{};
+
+    const hists=stores.map(s=>storeDataMap[s.vid].hist);
+    const sohs =stores.map(s=>sohMap[s.vid]||0);
+    const kaps =stores.map(s=>storeDataMap[s.vid].kap);
+    const pcts =stores.map(s=>storeDataMap[s.vid].pct);
+
+    const scored=stores.map(s=>{
+      const sH=minMaxScore(storeDataMap[s.vid].hist, hists, false);
+      const sS=minMaxScore(sohMap[s.vid]||0, sohs, true);  // invert: low SOH = high score
+      const sK=minMaxScore(storeDataMap[s.vid].kap, kaps, false);
+      const sP=minMaxScore(storeDataMap[s.vid].pct, pcts, true);  // invert: low % = high score
+      const final=Math.round(((sH*wHist+sS*wSoh+sK*wKap+sP*wPct)/100)*100)/100;
+      return {vid:s.vid, name:s.name, city:s.city||'-', sH, sS, sK, sP, final};
+    });
+
+    const totalSkor=scored.reduce((a,s)=>a+s.final,0);
+    const result=scored.map(s=>({
+      ...s,
+      alokasi: totalSkor>0 ? Math.round(s.final/totalSkor*a.stok) : 0,
+      prioritas: s.final>=8?'🔴 Tinggi':s.final>=6?'🟡 Sedang':'🟢 Rendah'
+    })).sort((a,b)=>b.final-a.final);
+
+    alokasiResult[key]=result;
+  });
+
+  saveAlokasiStorage();
+  updateArtDropdowns();
+  renderAlokasiDetail();
+  renderRingkasanAlokasi();
+  renderAlokasiMetrics();
+  showNotif('notif-alokasi','Alokasi berhasil dihitung!','success');
+}
+
+function renderAlokasiDetail(){
+  const key=document.getElementById('al-art-sel').value;
+  const tb=document.getElementById('alokasi-detail-table');
+  if(!key||!alokasiResult[key]){
+    tb.innerHTML='<tr><td colspan="9" class="empty">Pilih artikel dan klik "Hitung Ulang" untuk melihat hasil alokasi.</td></tr>';
+    return;
+  }
+  const rows=alokasiResult[key];
+  tb.innerHTML=rows.map((r,i)=>{
+    const rowFill=i%2===0?'background:#f8fafc':''
+    return `<tr style="${rowFill}">
+      <td>${r.name}</td><td style="color:var(--text2)">${r.city}</td>
+      <td class="mono" style="color:var(--accent)">${r.sH.toFixed(1)}</td>
+      <td class="mono" style="color:var(--accent)">${r.sS.toFixed(1)}</td>
+      <td class="mono" style="color:var(--accent)">${r.sK.toFixed(1)}</td>
+      <td class="mono" style="color:var(--accent)">${r.sP.toFixed(1)}</td>
+      <td class="mono" style="font-weight:600;color:var(--accent2)">${r.final.toFixed(2)}</td>
+      <td class="mono" style="font-weight:700;color:var(--accent3)">${r.alokasi}</td>
+      <td>${r.prioritas}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderRingkasanAlokasi(){
+  const head=document.getElementById('ring-head');
+  const body=document.getElementById('ring-body');
+  if(!artikelList.length){
+    head.innerHTML='<th>Info</th>';
+    body.innerHTML='<tr><td class="empty">Belum ada artikel.</td></tr>';
+    return;
+  }
+  // Headers
+  head.innerHTML='<th>Toko</th><th>Kota</th>'+
+    artikelList.map(a=>`<th>${a.art}<br><span style="font-size:10px;font-weight:400">${a.ukuran}</span></th>`).join('')+
+    '<th style="background:var(--accent3);color:#fff">Total</th>';
+
+  if(!stores.length){
+    body.innerHTML='<tr><td colspan="'+(artikelList.length+3)+'" class="empty">Belum ada toko.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=stores.map((s,si)=>{
+    const fill=si%2===0?'background:#f8fafc':'';
+    let total=0;
+    const cells=artikelList.map(a=>{
+      const key=artKey(a.art,a.ukuran);
+      const row=alokasiResult[key]?alokasiResult[key].find(r=>r.vid===s.vid):null;
+      const qty=row?row.alokasi:'-';
+      if(typeof qty==='number') total+=qty;
+      return `<td class="mono" style="text-align:center;font-weight:500">${qty}</td>`;
+    }).join('');
+    return `<tr style="${fill}">
+      <td><b>${s.name}</b></td>
+      <td style="color:var(--text2)">${s.city||'-'}</td>
+      ${cells}
+      <td class="mono" style="text-align:center;font-weight:700;color:var(--accent3)">${total||'-'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAlokasiMetrics(){
+  document.getElementById('al-total-art').textContent=artikelList.length;
+  document.getElementById('al-total-stok').textContent=artikelList.reduce((a,x)=>a+x.stok,0).toLocaleString('id-ID');
+  document.getElementById('al-total-toko').textContent=stores.length;
+  const totalAlokasi=Object.values(alokasiResult).reduce((a,rows)=>a+rows.reduce((b,r)=>b+r.alokasi,0),0);
+  const totalStok=artikelList.reduce((a,x)=>a+x.stok,0);
+  document.getElementById('al-sisa').textContent=(totalStok-totalAlokasi).toLocaleString('id-ID');
+}
+
+function updateBobotStatus(){
+  const total=(parseInt(document.getElementById('w-hist').value)||0)+
+              (parseInt(document.getElementById('w-soh').value)||0)+
+              (parseInt(document.getElementById('w-kap').value)||0)+
+              (parseInt(document.getElementById('w-pct').value)||0);
+  const el=document.getElementById('bobot-status');
+  if(total===100){el.className='badge b-ok';el.textContent='✓ Total = 100%';}
+  else{el.className='badge b-danger';el.textContent=`⚠ Total = ${total}% (harus 100%)`;}
+}
+
+function renderAlokasiPage(){
+  renderArtTable();
+  updateArtDropdowns();
+  renderAlokasiDetail();
+  renderRingkasanAlokasi();
+  renderAlokasiMetrics();
+  updateBobotStatus();
+}
+
 document.getElementById('top-date').textContent=new Date().toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 document.getElementById('e-date').value=new Date().toISOString().split('T')[0];
 loadFromStorage();
+loadAlokasiStorage();
 updateStoreDropdowns();
 updatePromoOpts();
 renderDashboard();
 renderStorePage();
 renderPromoPage();
+renderAlokasiPage();
 // Show storage status
 (function(){
   const saved = localStorage.getItem(LS_STORES);
